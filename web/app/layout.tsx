@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import "../globals.css";
+import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
@@ -16,13 +16,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="scrollbar-hide">
       <body className={inter.className}>
         <div className="h-screen w-screen">
           <Header></Header>
-          <main className=" flex flex-row">
-            <section className="h-full">{children}</section>
-          </main>
+          <main>{children}</main>
         </div>
       </body>
     </html>
