@@ -10,13 +10,12 @@ import Link from "next/link";
 import { SunIcon, MoonIcon, Cog8ToothIcon } from "@heroicons/react/20/solid";
 import { useDarkMode } from "@reactuses/core";
 import { usePathname } from "next/navigation";
+import { useStore } from "@/store/useStore";
+import { useEffect } from "react";
 export default function Header() {
-  const [dark, toggleDark] = useDarkMode({
-    classNameDark: "dark",
-    classNameLight: "light",
-    defaultValue: false,
-  });
+  const [theme, setTheme] = useStore((store) => [store.theme, store.setTheme]);
   const pathname = usePathname();
+
   return (
     <Navbar className=" border-b-1 h-14" shouldHideOnScroll>
       <NavbarBrand>
@@ -24,13 +23,13 @@ export default function Header() {
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-4 flex-1" justify="center">
         <NavbarItem isActive={pathname === "/"}>
-          <Link color="foreground" href="/home">
-            首页
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
           <Link href="/" color="foreground">
             数据集
+          </Link>
+        </NavbarItem>
+        <NavbarItem isActive={pathname === "/templates"}>
+          <Link color="foreground" href="/templates">
+            模版
           </Link>
         </NavbarItem>
         <NavbarItem isActive={pathname === "/about"}>
@@ -41,8 +40,17 @@ export default function Header() {
       </NavbarContent>
       <NavbarContent justify="end">
         <NavbarItem>
-          <Button size="sm" onClick={toggleDark}>
-            {dark ? (
+          <Button
+            size="sm"
+            onClick={() => {
+              if (theme === "dark") {
+                setTheme("light");
+              } else {
+                setTheme("dark");
+              }
+            }}
+          >
+            {theme === "dark" ? (
               <SunIcon className="w-5 h-5" />
             ) : (
               <MoonIcon className="w-5 h-5" />
