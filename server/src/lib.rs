@@ -1,8 +1,7 @@
 use axum::{
-    http::{StatusCode, Extensions},
     response::IntoResponse,
     routing::{get, get_service},
-    Router, Server, Extension,
+    Extension, Router, Server,
 };
 use error::ServerError;
 use once_cell::sync::Lazy;
@@ -13,9 +12,12 @@ use tracing::info;
 use crate::database::DBS;
 
 pub mod database;
+pub mod dates;
 pub mod error;
 pub mod upload;
-pub mod dates;
+pub mod templates;
+pub mod meta;
+
 type ServeResult<T> = Result<T, ServerError>;
 
 static ADDR: Lazy<SocketAddr> = Lazy::new(|| "127.0.0.1:4060".parse().unwrap());
@@ -24,6 +26,8 @@ pub async fn start() {
     let app = Router::new()
         .route("/", get(hello_world))
         .merge(upload::upload_router())
+        .merge(meta::meta_router())
+        .merge(templates::templates_router())
         .merge(dates::dates_router())
         .layer(Extension(DBS.clone()))
         .layer(CorsLayer::permissive())
