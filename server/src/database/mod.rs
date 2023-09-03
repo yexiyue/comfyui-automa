@@ -1,7 +1,11 @@
 use once_cell::sync::Lazy;
 use rocksdb::{Options, DB};
-use serde_json::Value;
-use std::ops::{Deref, DerefMut};
+use serde_json::{json, Value};
+use std::{
+    collections::HashMap,
+    ops::{Deref, DerefMut},
+    sync::{Arc, Mutex},
+};
 use uuid::Uuid;
 
 static DB_PATH: &str = "db";
@@ -10,7 +14,7 @@ static DB_OPTIONS: Lazy<Options> = Lazy::new(|| {
     options.create_if_missing(true);
     options
 });
-
+#[derive(Debug)]
 pub struct DataBase {
     db: rocksdb::DB,
 }
@@ -43,7 +47,10 @@ impl DataBase {
 
     pub fn create(&self, value: &Value) -> Result<Uuid, rocksdb::Error> {
         let id = Uuid::new_v4();
-        self.put(id.as_bytes(), value.to_string())?;
+        let mut data: Value = value.clone();
+        data["id"] = json!(id.to_string());
+
+        self.put(id, data.to_string())?;
         Ok(id)
     }
 
@@ -81,3 +88,11 @@ impl DataBase {
         Ok(uuid)
     }
 }
+
+pub type DBMAP = Arc<Mutex<HashMap<String, DataBase>>>;
+
+pub static DBS: Lazy<Arc<Mutex<HashMap<String, DataBase>>>> = Lazy::new(|| {
+    let mut hashmap = HashMap::new();
+    hashmap.insert("default".to_string(), DataBase::default());
+    Arc::new(Mutex::new(hashmap))
+});
