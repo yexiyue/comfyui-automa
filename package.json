@@ -1,0 +1,12 @@
+{
+  "name": "comfyui_automa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev":"pnpm -r run dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

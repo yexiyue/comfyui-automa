@@ -15,5 +15,6 @@ export const useStore = create(persist(immer<Store>((set) => ({
         })
     }
 })), {
-    name: "comfyui_automa_store"
+    name: "comfyui_automa_store",
+    skipHydration: true
 }))

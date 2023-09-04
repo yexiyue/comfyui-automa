@@ -8,10 +8,9 @@ import {
 } from "@nextui-org/react";
 import Link from "next/link";
 import { SunIcon, MoonIcon, Cog8ToothIcon } from "@heroicons/react/20/solid";
-import { useDarkMode } from "@reactuses/core";
 import { usePathname } from "next/navigation";
 import { useStore } from "@/store/useStore";
-import { useEffect } from "react";
+import {} from 'zustand';
 export default function Header() {
   const [theme, setTheme] = useStore((store) => [store.theme, store.setTheme]);
   const pathname = usePathname();
