@@ -49,7 +49,7 @@ impl DataBase {
         let id = Uuid::new_v4();
         let mut data: Value = value.clone();
         data["id"] = json!(id.to_string());
-
+        data["create_time"] = json!(chrono::Local::now().to_string());
         self.put(id, data.to_string())?;
         Ok(id)
     }
