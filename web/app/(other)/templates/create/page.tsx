@@ -14,6 +14,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Template } from "../page";
+
 const { TextArea } = Input;
 
 async function createTemplate(value: Template) {
@@ -52,7 +53,12 @@ export default () => {
   const router = useRouter();
   const onSubmit = async () => {
     const values = await form.validateFields();
-    values.cover = values.cover[0].response.url[0];
+    if (values.cover) {
+      values.cover = values.cover[0].response.url[0];
+    } else {
+      values.cover = "/web/default.png";
+    }
+
     await createTemplate(values);
     router.push("/templates/");
   };
@@ -114,6 +120,7 @@ export default () => {
             shouldUpdate={(prevValues, curValues) =>
               prevValues.fields !== curValues.fields
             }
+            rules={[{ required: true }]}
           >
             {({ getFieldValue, setFieldsValue }) => {
               const fields: {

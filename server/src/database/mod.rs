@@ -84,7 +84,9 @@ impl DataBase {
     /// 传入全量数据
     pub fn update(&self, id: &str, value: &Value) -> Result<Uuid, rocksdb::Error> {
         let uuid = Uuid::parse_str(id).expect("uuid解析错误");
-        self.db.put(uuid, value.to_string())?;
+        let mut data=value.clone();
+        data["id"] = json!(id.to_string());
+        self.db.put(uuid, data.to_string())?;
         Ok(uuid)
     }
 }
