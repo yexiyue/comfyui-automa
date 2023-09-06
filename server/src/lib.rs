@@ -51,7 +51,6 @@ pub fn static_serve() -> Router {
         "/",
         ServeDir::new("public").fallback(service_fn(move |req: Request<Body>| async move {
             let uri = req.uri().to_string();
-            info!("{uri}");
             let res = Response::builder();
             let res = res.status(304);
             let res = res.header("location", uri);

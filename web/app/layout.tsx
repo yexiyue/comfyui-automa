@@ -5,9 +5,16 @@ import { Inter } from "next/font/google";
 import StyledComponentsRegistry from "@/components/AntdRegistry";
 import { useStore } from "@/store/useStore";
 import { useEffect } from "react";
-
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const inter = Inter({ subsets: ["latin"] });
-
+// 使用react-query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 0,
+    },
+  },
+});
 export default function RootLayout({
   children,
 }: {
@@ -16,17 +23,19 @@ export default function RootLayout({
   const theme = useStore((state) => state.theme);
   //控制store 水合化时间
   useEffect(() => {
-    useStore.persist.rehydrate()
-  },[])
+    useStore.persist.rehydrate();
+  }, []);
   return (
     <html lang="en" className={`scrollbar-hide ${theme}`}>
       <body className={inter.className}>
-        <StyledComponentsRegistry>
-          <div className="h-screen w-screen">
-            <Header></Header>
-            <main>{children}</main>
-          </div>
-        </StyledComponentsRegistry>
+        <QueryClientProvider client={queryClient}>
+          <StyledComponentsRegistry>
+            <div className="h-screen w-screen">
+              <Header></Header>
+              <main>{children}</main>
+            </div>
+          </StyledComponentsRegistry>
+        </QueryClientProvider>
       </body>
     </html>
   );

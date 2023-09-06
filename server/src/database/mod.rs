@@ -78,7 +78,6 @@ impl DataBase {
             let b_time = b["create_time"].as_str().unwrap();
             return a_time.cmp(b_time);
         });
-        info!("{values:#?}");
         Ok(values)
     }
 

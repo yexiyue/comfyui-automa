@@ -33,7 +33,6 @@ async fn upload(mut multipart: Multipart) -> ServeResult<impl IntoResponse> {
         let filename = hash(&bytes);
         let filename = format!("{filename}.{ext}");
         path.push(&filename);
-        info!("write file:{path:?}");
         tokio::fs::write(&path, bytes).await.map_err(|_| {
             ServerError(
                 StatusCode::INTERNAL_SERVER_ERROR,

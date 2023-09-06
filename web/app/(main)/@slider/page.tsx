@@ -1,30 +1,22 @@
 "use client";
 import ListMenuItem from "@/components/ListMenuItem";
-import {
-  AdjustmentsHorizontalIcon,
-  ChartPieIcon,
-  TableCellsIcon,
-  WindowIcon,
-} from "@heroicons/react/24/outline";
-import {
-  Accordion,
-  AccordionItem,
-  Button,
-  Listbox,
-  ListboxItem,
-} from "@nextui-org/react";
+import { DatesList } from "@/store/useStore";
+import { Accordion, AccordionItem, Button } from "@nextui-org/react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
+const getDatesList = async () => {
+  const res = await fetch(`${process.env.server}/default`);
+  return await res.json();
+};
 export default function Slider() {
-  const menus = [
-    {
-      key: "1",
-      label: "1",
-      title: "1",
-    },
-  ];
-  const defaultContent =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+  const { data, isSuccess } = useQuery({
+    queryKey: ["datesList"],
+    queryFn: getDatesList,
+  });
+
+  const datesList: DatesList[] = data;
+
   return (
     <div className="w-full h-full flex justify-center flex-col">
       <Button
@@ -36,22 +28,24 @@ export default function Slider() {
       >
         添加数据集
       </Button>
-      <Accordion
-        selectionMode="multiple"
-        variant="splitted"
-        isCompact
-        className=" py-4 overflow-y-scroll h-full scrollbar-hide"
-      >
-        <AccordionItem key="1" aria-label="Accordion 1" title="Accordion 1">
-          <ListMenuItem></ListMenuItem>
-        </AccordionItem>
-        <AccordionItem key="2" aria-label="Accordion 2" title="Accordion 2">
-          <ListMenuItem></ListMenuItem>
-        </AccordionItem>
-        <AccordionItem key="3" aria-label="Accordion 3" title="Accordion 3">
-          {defaultContent}
-        </AccordionItem>
-      </Accordion>
+      {isSuccess && (
+        <Accordion
+          selectionMode="multiple"
+          variant="splitted"
+          isCompact
+          className=" py-4 overflow-y-scroll h-full scrollbar-hide"
+        >
+          {datesList.map((item) => (
+            <AccordionItem
+              key={item.id}
+              aria-label={`Accordion ${item.name}`}
+              title={item.name}
+            >
+              <ListMenuItem></ListMenuItem>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      )}
     </div>
   );
 }

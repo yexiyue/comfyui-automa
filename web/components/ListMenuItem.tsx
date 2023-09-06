@@ -1,25 +1,22 @@
 "use client";
 import {
-  ChartPieIcon,
   WindowIcon,
   TableCellsIcon,
   AdjustmentsHorizontalIcon,
 } from "@heroicons/react/20/solid";
+import { PhotoIcon } from "@heroicons/react/24/outline";
 import { Listbox, ListboxItem } from "@nextui-org/react";
 
 export default function ListMenuItem() {
 
   return (
-    <Listbox
-      variant="flat"
-      aria-label="ListMenuItem"
-    >
+    <Listbox variant="flat" aria-label="ListMenuItem">
       <ListboxItem
         color="primary"
         startContent={<WindowIcon className="w-4 h-4"></WindowIcon>}
         key="date"
       >
-        元数据项
+        元信息
       </ListboxItem>
       <ListboxItem
         color="primary"
@@ -31,9 +28,9 @@ export default function ListMenuItem() {
       <ListboxItem
         key="analysis"
         color="primary"
-        startContent={<ChartPieIcon className="w-4 h-4"></ChartPieIcon>}
+        startContent={<PhotoIcon className="w-4 h-4"></PhotoIcon>}
       >
-        数据统计
+        图片空间
       </ListboxItem>
       <ListboxItem
         color="primary"
@@ -42,7 +39,7 @@ export default function ListMenuItem() {
         }
         key="setting"
       >
-        表单设置
+        设置
       </ListboxItem>
     </Listbox>
   );

@@ -1,8 +1,8 @@
 export default function MainLayout({
-  children,
+  main,
   slider,
 }: {
-  children: React.ReactNode;
+  main: React.ReactNode;
   slider: React.ReactNode;
 }) {
   return (
@@ -15,7 +15,7 @@ export default function MainLayout({
       >
         {slider}
       </section>
-      <section className="w-4/5 h-full">{children}</section>
+      <section className="flex-1 h-full p-4">{main}</section>
     </main>
   );
 }
