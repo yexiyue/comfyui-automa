@@ -6,16 +6,13 @@ import {
   AdjustmentsHorizontalIcon,
 } from "@heroicons/react/20/solid";
 import { Listbox, ListboxItem } from "@nextui-org/react";
-import { useState } from "react";
 
 export default function ListMenuItem() {
-  const [selectedKey, setSelectedKey] = useState(new Set([]));
+
   return (
     <Listbox
-      aria-label="Actions"
-      selectionMode="single"
-      selectedKeys={selectedKey}
-      onSelectionChange={setSelectedKey as any}
+      variant="flat"
+      aria-label="ListMenuItem"
     >
       <ListboxItem
         color="primary"

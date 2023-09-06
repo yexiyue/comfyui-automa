@@ -8,7 +8,7 @@ export default function MainLayout({
   return (
     <main className=" flex flex-row">
       <section
-        className="w-1/5 scrollbar-hide"
+        className="w-1/5 scrollbar-hide max-w-xs min-w-[200px]"
         style={{
           height: "calc(100vh - 56px)",
         }}

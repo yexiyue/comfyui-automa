@@ -1,6 +1,7 @@
 use once_cell::sync::Lazy;
 use rocksdb::{Options, DB};
 use serde_json::{json, Value};
+use tracing::info;
 use std::{
     collections::HashMap,
     ops::{Deref, DerefMut},
@@ -72,6 +73,12 @@ impl DataBase {
                 values.push(value);
             }
         }
+        values.sort_by(|a, b| {
+            let a_time = a["create_time"].as_str().unwrap();
+            let b_time = b["create_time"].as_str().unwrap();
+            return a_time.cmp(b_time);
+        });
+        info!("{values:#?}");
         Ok(values)
     }
 
@@ -84,9 +91,13 @@ impl DataBase {
     /// 传入全量数据
     pub fn update(&self, id: &str, value: &Value) -> Result<Uuid, rocksdb::Error> {
         let uuid = Uuid::parse_str(id).expect("uuid解析错误");
-        let mut data=value.clone();
-        data["id"] = json!(id.to_string());
-        self.db.put(uuid, data.to_string())?;
+        let mut preValue=self.find_by_id(id).unwrap().unwrap();
+        let data = value.clone();
+        let data=data.as_object().unwrap();
+        for (key,v) in data {
+            preValue[key]=v.clone();
+        }
+        self.db.put(uuid, preValue.to_string())?;
         Ok(uuid)
     }
 }

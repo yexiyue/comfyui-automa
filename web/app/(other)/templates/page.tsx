@@ -33,9 +33,7 @@ export default function Templates() {
   }, []);
 
   return (
-    <div className="grid w-4/5 mx-auto my-4 gap-4" style={{
-      gridTemplateColumns:"repeat(auto-fit, minmax(200px,1fr))"
-    }} >
+    <div className="grid w-4/5 mx-auto py-6 gap-4 grid-cols-5 max-xl:grid-cols-4 max-lg:grid-cols-3 max-sm:grid-cols-2" >
       {templates.map((template) => (
         <TemplateCard key={template.id} {...template}></TemplateCard>
       ))}

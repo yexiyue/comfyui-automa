@@ -10,7 +10,6 @@ import Link from "next/link";
 import { SunIcon, MoonIcon, Cog8ToothIcon } from "@heroicons/react/20/solid";
 import { usePathname } from "next/navigation";
 import { useStore } from "@/store/useStore";
-import {} from 'zustand';
 export default function Header() {
   const [theme, setTheme] = useStore((store) => [store.theme, store.setTheme]);
   const pathname = usePathname();
@@ -22,19 +21,13 @@ export default function Header() {
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-4 flex-1" justify="center">
         <NavbarItem isActive={pathname === "/"}>
-          <Link href="/" color="foreground">
-            数据集
-          </Link>
+          <Link href="/">数据集</Link>
         </NavbarItem>
         <NavbarItem isActive={pathname === "/templates"}>
-          <Link color="foreground" href="/templates">
-            模版
-          </Link>
+          <Link href="/templates">模版</Link>
         </NavbarItem>
         <NavbarItem isActive={pathname === "/about"}>
-          <Link color="foreground" href="/about">
-            关于
-          </Link>
+          <Link href="/about">关于</Link>
         </NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end">
