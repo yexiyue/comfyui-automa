@@ -5,17 +5,10 @@ import { Accordion, AccordionItem, Button } from "@nextui-org/react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
-const getDatesList = async () => {
-  const res = await fetch(`${process.env.server}/default`);
-  return await res.json();
-};
 export default function Slider() {
-  const { data, isSuccess } = useQuery({
-    queryKey: ["datesList"],
-    queryFn: getDatesList,
+  const { data: datesList, isSuccess } = useQuery<DatesList[]>({
+    queryKey: ["/default"],
   });
-
-  const datesList: DatesList[] = data;
 
   return (
     <div className="w-full h-full flex justify-center flex-col">

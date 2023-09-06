@@ -1,6 +1,5 @@
 "use client";
-import { Template, getData } from "@/app/(other)/templates/page";
-import { useStore } from "@/store/useStore";
+import { Template } from "@/app/(other)/templates/page";
 import { HomeOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button as NextButton } from "@nextui-org/react";
 import { useQuery } from "@tanstack/react-query";
@@ -30,16 +29,15 @@ async function createDates(value: any) {
   return await res.json();
 }
 export default () => {
-  const { data } = useQuery({
-    queryKey: ["templates"],
-    queryFn: getData,
+  const { data: templates, isSuccess } = useQuery<Template[]>({
+    queryKey: ["/templates"],
   });
-  const templates: Template[] = data;
   const options = useMemo(() => {
-    return templates.map((template) => ({
-      label: template.name,
-      value: template.id,
-    }));
+    if (isSuccess)
+      return templates.map((template) => ({
+        label: template.name,
+        value: template.id,
+      }));
   }, [templates]);
   const normFile = (e: any) => {
     if (Array.isArray(e)) {

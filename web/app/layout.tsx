@@ -6,12 +6,14 @@ import StyledComponentsRegistry from "@/components/AntdRegistry";
 import { useStore } from "@/store/useStore";
 import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { queryFn } from "@/api/queryFn";
 const inter = Inter({ subsets: ["latin"] });
 // 使用react-query
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 0,
+      queryFn: queryFn,
     },
   },
 });

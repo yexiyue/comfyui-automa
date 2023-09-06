@@ -14,23 +14,17 @@ export type Template = {
   create_time: string;
 };
 
-export async function getData() {
-  const res = await fetch(`${process.env.server}/templates`);
-  return await res.json();
-}
-
 export default function Templates() {
-  const { data } = useQuery({
-    queryKey: ["templates"],
-    queryFn: getData,
+  const { data: templates, isSuccess } = useQuery<Template[]>({
+    queryKey: ["/templates"],
   });
-  const templates: Template[] = data;
 
   return (
     <div className="grid w-4/5 mx-auto py-6 gap-4 grid-cols-5 max-xl:grid-cols-4 max-lg:grid-cols-3 max-sm:grid-cols-2">
-      {templates.map((template) => (
-        <TemplateCard key={template.id} {...template}></TemplateCard>
-      ))}
+      {isSuccess &&
+        templates.map((template) => (
+          <TemplateCard key={template.id} {...template}></TemplateCard>
+        ))}
       <Tooltip showArrow={true} content="添加模版">
         <Button
           className="fixed bottom-20 right-20 h-16 scale-75"
