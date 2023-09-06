@@ -10,25 +10,21 @@ import {
   Typography,
   Upload,
   UploadFile,
+  message,
 } from "antd";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Template } from "../page";
+import { useMutation } from "@tanstack/react-query";
+import { mutationFn } from "@/api/queryFn";
 
 const { TextArea } = Input;
 
-async function createTemplate(value: Template) {
-  const res = await fetch(`${process.env.server}/templates`, {
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(value),
-  });
-  return await res.json();
-}
-
 export default () => {
+  const [messageApi, contextHolder] = message.useMessage();
+  const { mutate } = useMutation({
+    mutationFn: mutationFn("/templates", "post"),
+  });
   const normFile = (e: any) => {
     if (Array.isArray(e)) {
       return e;
@@ -59,12 +55,21 @@ export default () => {
       values.cover = "/web/default.png";
     }
 
-    await createTemplate(values);
-    router.push("/templates/");
+    mutate(values, {
+      onSuccess: () => {
+        messageApi.success("添加成功", 1).then(() => {
+          router.push("/templates/");
+        });
+      },
+      onError(error) {
+          messageApi.error(error.message, 1);
+      },
+    });
   };
 
   return (
     <div className="mx-auto mt-5 w-2/5">
+      {contextHolder}
       <Form.Provider
         onFormFinish={(name, { values, forms }) => {
           if (name === "fieldForm") {

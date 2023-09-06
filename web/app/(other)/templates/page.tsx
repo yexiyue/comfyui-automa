@@ -1,9 +1,9 @@
 "use client";
-import { Button, Tooltip } from "@nextui-org/react";
+import { Button, CircularProgress, Tooltip } from "@nextui-org/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import TemplateCard from "@/components/TemplateCard";
 import Link from "next/link";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 export type Template = {
   cover: string;
@@ -15,12 +15,22 @@ export type Template = {
 };
 
 export default function Templates() {
-  const { data: templates, isSuccess } = useQuery<Template[]>({
+  const {
+    data: templates,
+    isLoading,
+    isSuccess,
+  } = useQuery<Template[]>({
     queryKey: ["/templates"],
   });
 
   return (
     <div className="grid w-4/5 mx-auto py-6 gap-4 grid-cols-5 max-xl:grid-cols-4 max-lg:grid-cols-3 max-sm:grid-cols-2">
+      {isLoading && (
+        <CircularProgress
+          className="fixed top-0 left-0 right-0 bottom-0 m-auto"
+          label="加載中..."
+        ></CircularProgress>
+      )}
       {isSuccess &&
         templates.map((template) => (
           <TemplateCard key={template.id} {...template}></TemplateCard>
