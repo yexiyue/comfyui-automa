@@ -13,9 +13,19 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Breadcrumb, Form, Input, Table, message } from "antd";
+import {
+  Breadcrumb,
+  Drawer,
+  Form,
+  Input,
+  Popconfirm,
+  Space,
+  Table,
+  message,
+} from "antd";
 import { ColumnsType } from "antd/es/table";
 import Link from "next/link";
+import { useMemo, useState } from "react";
 const { TextArea } = Input;
 export default function DateList({ params }: { params: { id: string } }) {
   const { data: fields, isLoading: fieldsLoading } = useQuery<
@@ -43,44 +53,85 @@ export default function DateList({ params }: { params: { id: string } }) {
       });
     },
   });
-
+  const { mutate: deleteMutate } = useMutation({
+    mutationFn: (id: string) =>
+      mutationFn(`/dates/${params.id}/${id}`, "delete")(null),
+  });
+  const { mutate: updateMutate } = useMutation({
+    mutationFn: (data: { id: string; values: any }) =>
+      mutationFn(`/dates/${params.id}/${data.id}`, "put")(data.values),
+  });
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
   const [form] = Form.useForm();
+  const [open, setOpen] = useState(false);
   const [messageApi, messageHolder] = message.useMessage();
-  let columns: ColumnsType<any> = [
-    {
-      key: `index${params.id}`,
-      title: "序号",
-      render: (text, record, index) => index + 1,
-    },
-    {
-      key: `action${params.id}`,
-      title: "操作",
-      width: 200,
-      render: (text, record, index) => (
-        <div className="flex items-center justify-around">
-          <Button size="sm" color="primary">
-            修改
-          </Button>
-          <Button size="sm" color="danger">
-            删除
-          </Button>
-        </div>
-      ),
-    },
-  ];
-  if (!fields || fields?.length <= 0) return;
-  columns.splice(
-    1,
-    0,
-    ...fields!.map((item) => ({
-      key: item.fieldName,
-      dataIndex: item.fieldName,
-      sorter:
-        item.fieldType === "number" ? (a: any, b: any) => a - b : undefined,
-      title: item.fieldName,
-    }))
-  );
+  const [updateId, setUpdateId] = useState<string>();
+
+  const columns = useMemo(() => {
+    let columns: ColumnsType<any> = [
+      {
+        key: `index${params.id}`,
+        title: "序号",
+        render: (text, record, index) => index + 1,
+      },
+      {
+        key: `action${params.id}`,
+        title: "操作",
+        width: 200,
+        render: (text, record, index) => (
+          <div className="flex items-center justify-around">
+            <Button
+              size="sm"
+              color="primary"
+              onClick={() => {
+                form.setFieldsValue(record);
+                setUpdateId(record.id);
+                setOpen(true);
+              }}
+            >
+              修改
+            </Button>
+            <Popconfirm
+              title="警告"
+              description="确定删除该数据吗？"
+              okText="Yes"
+              cancelText="No"
+              onConfirm={() => {
+                deleteMutate(record.id, {
+                  onSuccess() {
+                    queryClient.invalidateQueries({
+                      queryKey: [`/dates/${params.id}`],
+                    });
+                    messageApi.success("删除成功", 1);
+                  },
+                  onError(error) {
+                    messageApi.error(error.message, 1);
+                  },
+                });
+              }}
+            >
+              <Button size="sm" color="danger">
+                删除
+              </Button>
+            </Popconfirm>
+          </div>
+        ),
+      },
+    ];
+    if (!fields || fields?.length <= 0) return;
+    columns.splice(
+      1,
+      0,
+      ...fields!.map((item) => ({
+        key: item.fieldName,
+        dataIndex: item.fieldName,
+        sorter:
+          item.fieldType === "number" ? (a: any, b: any) => a - b : undefined,
+        title: item.fieldName,
+      }))
+    );
+    return columns;
+  }, [params, fields]);
 
   return (
     <div>
@@ -110,7 +161,16 @@ export default function DateList({ params }: { params: { id: string } }) {
           添加数据
         </Button>
         <Spacer x={16} />
-        <Table columns={columns} dataSource={data} loading={isLoading} />
+        <Table
+          columns={columns}
+          rowKey={(item) => item.id}
+          dataSource={data}
+          loading={isLoading}
+          size="small"
+          pagination={{
+            defaultPageSize: 20,
+          }}
+        />
       </div>
       <Modal isOpen={isOpen} placement="center" onOpenChange={onOpenChange}>
         <ModalContent>
@@ -173,6 +233,76 @@ export default function DateList({ params }: { params: { id: string } }) {
           )}
         </ModalContent>
       </Modal>
+      <Drawer
+        title="修改数据"
+        width="50%"
+        onClose={() => {
+          form.resetFields();
+          setOpen(false);
+        }}
+        open={open}
+        bodyStyle={{ paddingBottom: 80 }}
+        extra={
+          <Space>
+            <Button
+              onClick={() => {
+                form.resetFields();
+                setOpen(false);
+              }}
+              size="sm"
+              color="danger"
+              variant="light"
+            >
+              取消
+            </Button>
+            <Button
+              color="primary"
+              size="sm"
+              onClick={() => {
+                form.validateFields().then((values) => {
+                  updateMutate(
+                    {
+                      id: updateId!,
+                      values,
+                    },
+                    {
+                      onSuccess() {
+                        queryClient.invalidateQueries({
+                          queryKey: [`/dates/${params.id}`],
+                        });
+                        setOpen(false);
+                        form.resetFields();
+                        messageApi.success("更新成功", 1);
+                      },
+                      onError(error) {
+                        messageApi.error(error.message, 1);
+                      },
+                    }
+                  );
+                });
+              }}
+            >
+              确定
+            </Button>
+          </Space>
+        }
+      >
+        <Form form={form} layout="vertical">
+          {fields?.map((item) => (
+            <Form.Item
+              label={item.fieldName}
+              name={item.fieldName}
+              rules={[{ required: true, message: `请输入${item.fieldName}` }]}
+            >
+              {item.fieldType === "number" ? (
+                <Input type={item.fieldType} />
+              ) : (
+                <TextArea rows={3} />
+              )}
+            </Form.Item>
+          ))}
+        </Form>
+      </Drawer>
     </div>
   );
 }

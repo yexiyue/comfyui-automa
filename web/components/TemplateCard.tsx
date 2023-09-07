@@ -1,3 +1,4 @@
+import { mutationFn } from "@/api/queryFn";
 import { useStore } from "@/store/useStore";
 import {
   Button,
@@ -12,6 +13,9 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@nextui-org/react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { message } from "antd";
+import { error } from "console";
 import moment from "moment";
 import Link from "next/link";
 
@@ -30,17 +34,25 @@ export default ({
   description,
   create_time,
 }: TemplateCardProps) => {
-  const [setTemplates] = useStore((store) => [store.setTemplates]);
-  const deleteItem = async (id: string) => {
-    await fetch(`${process.env.server}/templates/${id}`, {
-      method: "DELETE",
-    });
-    const res = await fetch(`${process.env.server}/templates`);
-    res.ok && setTemplates(await res.json());
-  };
+  const [messageApi, messageHolder] = message.useMessage();
+  const queryClient = useQueryClient();
+  const { mutate } = useMutation({
+    mutationFn: mutationFn(`/templates/${id}`, "delete"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["/templates"],
+      });
+      messageApi.success("删除成功", 1);
+    },
+    onError(error) {
+      messageApi.error(error.message, 1);
+    },
+  });
+
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
   return (
     <>
+      {messageHolder}
       <Card
         isPressable
         as={Link}
@@ -89,7 +101,7 @@ export default ({
                   color="danger"
                   variant="light"
                   onPress={() => {
-                    deleteItem(id);
+                    mutate(null);
                     onClose();
                   }}
                 >

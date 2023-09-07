@@ -1,15 +1,16 @@
 import { Template } from "@/app/(other)/templates/page";
 import { create } from "zustand";
-import {  persist } from "zustand/middleware";
+import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 export type DatesList = {
     id: string;
     create_time: string;
     name: string;
+    description: string
     cover: string;
     template_id: string;
-    template:Template
+    template: Template
 }
 
 type Store = {

@@ -1,7 +1,13 @@
 "use client";
 import ListMenuItem from "@/components/ListMenuItem";
 import { DatesList } from "@/store/useStore";
-import { Accordion, AccordionItem, Button, Skeleton } from "@nextui-org/react";
+import {
+  Accordion,
+  AccordionItem,
+  Button,
+  Skeleton,
+  Tooltip,
+} from "@nextui-org/react";
 import { useQuery } from "@tanstack/react-query";
 import { Empty } from "antd";
 import Link from "next/link";
@@ -12,7 +18,7 @@ export default function Slider() {
   });
 
   return (
-    <div className="flex flex-col sticky top-4 ease-in-out">
+    <div className="flex flex-col fixed w-1/5 top-14 h-full ease-in-out">
       <Button
         className="w-[95%] mx-auto mt-3"
         variant="shadow"
@@ -22,7 +28,7 @@ export default function Slider() {
       >
         添加数据集
       </Button>
-      {datesList && datesList.length === 0  && (
+      {datesList && datesList.length === 0 && (
         <Empty
           image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
           className="w-full flex flex-col justify-center items-center"
@@ -40,14 +46,18 @@ export default function Slider() {
           selectionMode="multiple"
           variant="splitted"
           isCompact
-          className=" pb-4 pt-2 overflow-y-scroll h-full scrollbar-hide"
+          className="mb-20 pb-4 pt-2 overflow-y-scroll h-full scrollbar-hide"
         >
           {datesList ? (
             datesList.map((item) => (
               <AccordionItem
                 key={item.id}
                 aria-label={`Accordion ${item.name}`}
-                title={item.name}
+                title={
+                  <Tooltip content={item.description} showArrow={true}>
+                    <span>{item.name}</span>
+                  </Tooltip>
+                }
               >
                 <ListMenuItem id={item.id}></ListMenuItem>
               </AccordionItem>
