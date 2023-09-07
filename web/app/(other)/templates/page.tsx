@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 export type Template = {
   cover: string;
   description: string;
-  fields: { fieldName: string; fieldType: string; defaultValue: string }[];
+  fields: { fieldName: string; fieldType: string; defaultValue?: string }[];
   id: string;
   name: string;
   create_time: string;

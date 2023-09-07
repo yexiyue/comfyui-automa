@@ -1,5 +1,5 @@
 use axum::{
-    routing::{get, put},
+    routing::{get, post, put},
     Router,
 };
 
@@ -15,6 +15,9 @@ pub fn dates_router() -> Router {
                 put(controller::update)
                     .get(controller::find_by_id)
                     .delete(controller::delete),
-            ),
+            )
+            .route("/import", post(controller::create_from_list))
+            .route("/force_import", post(controller::create_force))
+            ,
     )
 }

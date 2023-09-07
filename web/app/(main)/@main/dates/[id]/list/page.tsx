@@ -26,6 +26,9 @@ import {
 import { ColumnsType } from "antd/es/table";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import AddModal from "./AddModal";
+import UpdateDower from "./UpdateDrawer";
+import ImportDrawer from "./ImportDrawer";
 const { TextArea } = Input;
 export default function DateList({ params }: { params: { id: string } }) {
   const { data: fields, isLoading: fieldsLoading } = useQuery<
@@ -45,28 +48,18 @@ export default function DateList({ params }: { params: { id: string } }) {
     queryKey: [`/dates/${params.id}`],
   });
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
-    mutationFn: mutationFn(`/dates/${params.id}`, "post"),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [`/dates/${params.id}`],
-      });
-    },
-  });
+
   const { mutate: deleteMutate } = useMutation({
     mutationFn: (id: string) =>
       mutationFn(`/dates/${params.id}/${id}`, "delete")(null),
   });
-  const { mutate: updateMutate } = useMutation({
-    mutationFn: (data: { id: string; values: any }) =>
-      mutationFn(`/dates/${params.id}/${data.id}`, "put")(data.values),
-  });
+
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
   const [form] = Form.useForm();
   const [open, setOpen] = useState(false);
   const [messageApi, messageHolder] = message.useMessage();
   const [updateId, setUpdateId] = useState<string>();
-
+  const [importOpen, setImportOpen] = useState(false);
   const columns = useMemo(() => {
     let columns: ColumnsType<any> = [
       {
@@ -150,17 +143,20 @@ export default function DateList({ params }: { params: { id: string } }) {
           },
         ]}
       />
-      <Spacer x={16} />
       <div className=" p-4">
-        <Button
-          size="sm"
-          color="primary"
-          onClick={onOpen}
-          isLoading={fieldsLoading}
-        >
-          添加数据
-        </Button>
-        <Spacer x={16} />
+        <div className="flex gap-4 mb-4">
+          <Button
+            size="sm"
+            color="primary"
+            onClick={onOpen}
+            isLoading={fieldsLoading}
+          >
+            添加数据
+          </Button>
+          <Button size="sm" color="primary" onClick={() => setImportOpen(true)}>
+            导入数据
+          </Button>
+        </div>
         <Table
           columns={columns}
           rowKey={(item) => item.id}
@@ -172,137 +168,27 @@ export default function DateList({ params }: { params: { id: string } }) {
           }}
         />
       </div>
-      <Modal isOpen={isOpen} placement="center" onOpenChange={onOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                添加数据
-              </ModalHeader>
-              <ModalBody>
-                <Form form={form} layout="vertical">
-                  {fields?.map((item) => (
-                    <Form.Item
-                      label={item.fieldName}
-                      name={item.fieldName}
-                      rules={[
-                        { required: true, message: `请输入${item.fieldName}` },
-                      ]}
-                    >
-                      {item.fieldType === "number" ? (
-                        <Input type={item.fieldType} />
-                      ) : (
-                        <TextArea rows={3} />
-                      )}
-                    </Form.Item>
-                  ))}
-                </Form>
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  color="danger"
-                  variant="light"
-                  onPress={() => {
-                    form.resetFields();
-                    onClose();
-                  }}
-                >
-                  取消
-                </Button>
-                <Button
-                  color="primary"
-                  onPress={() => {
-                    form.validateFields().then((values) => {
-                      mutate(values, {
-                        onSuccess() {
-                          messageApi.success("添加成功", 1);
-                          form.resetFields();
-                          onClose();
-                        },
-                        onError(error) {
-                          messageApi.error(error.message, 1);
-                        },
-                      });
-                    });
-                  }}
-                >
-                  添加
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-      <Drawer
-        title="修改数据"
-        width="50%"
-        onClose={() => {
-          form.resetFields();
-          setOpen(false);
-        }}
+      <AddModal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        id={params.id}
+        fields={fields!}
+        form={form}
+      ></AddModal>
+      <UpdateDower
+        id={params.id}
+        form={form}
+        updateId={updateId!}
         open={open}
-        bodyStyle={{ paddingBottom: 80 }}
-        extra={
-          <Space>
-            <Button
-              onClick={() => {
-                form.resetFields();
-                setOpen(false);
-              }}
-              size="sm"
-              color="danger"
-              variant="light"
-            >
-              取消
-            </Button>
-            <Button
-              color="primary"
-              size="sm"
-              onClick={() => {
-                form.validateFields().then((values) => {
-                  updateMutate(
-                    {
-                      id: updateId!,
-                      values,
-                    },
-                    {
-                      onSuccess() {
-                        queryClient.invalidateQueries({
-                          queryKey: [`/dates/${params.id}`],
-                        });
-                        setOpen(false);
-                        form.resetFields();
-                        messageApi.success("更新成功", 1);
-                      },
-                      onError(error) {
-                        messageApi.error(error.message, 1);
-                      },
-                    }
-                  );
-                });
-              }}
-            >
-              确定
-            </Button>
-          </Space>
-        }
-      >
-        <Form form={form} layout="vertical">
-          {fields?.map((item) => (
-            <Form.Item
-              label={item.fieldName}
-              name={item.fieldName}
-              rules={[{ required: true, message: `请输入${item.fieldName}` }]}
-            >
-              {item.fieldType === "number" ? (
-                <Input type={item.fieldType} />
-              ) : (
-                <TextArea rows={3} />
-              )}
-            </Form.Item>
-          ))}
-        </Form>
-      </Drawer>
+        setOpen={setOpen}
+        fields={fields!}
+      ></UpdateDower>
+      <ImportDrawer
+        open={importOpen}
+        setOpen={setImportOpen}
+        id={params.id}
+        fields={fields!}
+      ></ImportDrawer>
     </div>
   );
 }
