@@ -70,7 +70,7 @@ export default () => {
       onError(error) {
         messageApi.error(error.message, 1);
       },
-      onSuccess(data, variables, context) {
+      onSuccess() {
         queryClient.invalidateQueries({queryKey:['/default']})
         messageApi.success("添加成功", 1).then(() => {
           router.push("/");

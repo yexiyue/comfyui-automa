@@ -7,7 +7,7 @@ use crate::{
     ServeResult,
 };
 
-static DATE: &str = "template";
+pub static DATE: &str = "template";
 
 pub async fn find_all(Extension(dbs): Extension<DBMAP>) -> ServeResult<impl IntoResponse> {
     let mut dbs = dbs.lock().unwrap();

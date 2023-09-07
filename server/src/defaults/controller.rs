@@ -41,7 +41,13 @@ pub async fn create(
             dbs.get(DATE).unwrap()
         }
     };
-    let res = db.create(&value).map_err(|_| {
+    let mut data=value.clone();
+    let templates=data["template_id"].clone();
+    let template_id=templates.as_str().unwrap();
+    let template_db=dbs.get(crate::templates::controller::DATE).unwrap();
+    let template=template_db.find_by_id(template_id).unwrap().unwrap();
+    data["template"]=template;
+    let res = db.create(&data).map_err(|_| {
         ServerError(
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to create".to_string(),
