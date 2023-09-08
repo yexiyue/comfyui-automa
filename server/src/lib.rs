@@ -18,7 +18,6 @@ pub mod database;
 pub mod dates;
 pub mod defaults;
 pub mod error;
-pub mod meta;
 pub mod templates;
 pub mod upload;
 type ServeResult<T> = Result<T, ServerError>;
@@ -30,7 +29,6 @@ pub async fn start() {
         .route("/", get(hello_world))
         .merge(upload::upload_router())
         .merge(defaults::default_router())
-        .merge(meta::meta_router())
         .merge(templates::templates_router())
         .merge(dates::dates_router())
         .layer(Extension(DBS.clone()))

@@ -10,7 +10,8 @@ export type DatesList = {
     description: string
     cover: string;
     template_id: string;
-    template: Template
+    template: Template;
+    [key: string]: any
 }
 
 type Store = {

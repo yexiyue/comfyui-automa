@@ -20,7 +20,7 @@ export default function Slider() {
   return (
     <div className="flex flex-col fixed w-1/5 top-14 h-full ease-in-out">
       <Button
-        className="w-[95%] mx-auto mt-3"
+        className="w-[95%] mx-auto mt-3 flex-shrink-0"
         variant="shadow"
         color="primary"
         as={Link}
@@ -39,14 +39,14 @@ export default function Slider() {
         ></Empty>
       )}
       <Skeleton
-        className=" mt-4 rounded-lg overflow-y-scroll scrollbar-hide h-full"
+        className=" mt-4 rounded-lg overflow-y-scroll scrollbar-hide"
         isLoaded={isSuccess}
       >
         <Accordion
           selectionMode="multiple"
           variant="splitted"
           isCompact
-          className="mb-20 pb-4 pt-2 overflow-y-scroll h-full scrollbar-hide"
+          className="mb-20 pb-4 pt-2 overflow-y-scroll scrollbar-hide"
         >
           {datesList ? (
             datesList.map((item) => (

@@ -114,18 +114,12 @@ export default ({ open, setOpen, fields, id }: ImportDrawerProps) => {
                       ? "number"
                       : "text",
                 }));
-                if (fields == null) {
-                  const template = queryClient.getQueryData<Template>([
-                    `/default/${id}`,
-                  ]);
+                if (!fields) {
                   return forceImport(data, {
                     onSuccess: () => {
                       updateDefault(
                         {
-                          template: {
-                            ...template,
-                            fields: templateFields,
-                          },
+                          fields: templateFields,
                         },
                         {
                           onSuccess: () => {
@@ -230,10 +224,7 @@ export default ({ open, setOpen, fields, id }: ImportDrawerProps) => {
                       onSuccess: () => {
                         updateDefault(
                           {
-                            template: {
-                              ...template,
-                              fields: importData?.templateFields,
-                            },
+                            fields: importData?.templateFields,
                           },
                           {
                             onSuccess: () => {

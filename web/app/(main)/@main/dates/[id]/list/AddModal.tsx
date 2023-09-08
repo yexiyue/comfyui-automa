@@ -35,7 +35,7 @@ export default ({ isOpen, onOpenChange, form, fields, id }: AddModalProps) => {
   return (
     <>
       {messageHolder}
-      <Modal isOpen={isOpen} placement="center" onOpenChange={onOpenChange}>
+      <Modal isOpen={isOpen} placement="center" scrollBehavior="inside" onOpenChange={onOpenChange}>
         <ModalContent>
           {(onClose) => (
             <>

@@ -66,6 +66,15 @@ export default () => {
     } else {
       values.cover = "/web/default.png";
     }
+
+    if (templates && values?.template_id) {
+      let template = templates.find((t) => t.id === values.template_id);
+      values.fields = template?.fields;
+    } else {
+      values.fields = [];
+    }
+    delete values?.template_id;
+
     mutate(values, {
       onError(error) {
         messageApi.error(error.message, 1);

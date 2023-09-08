@@ -4,6 +4,9 @@ import { DatesList } from "@/store/useStore";
 import { HomeOutlined } from "@ant-design/icons";
 import {
   Button,
+  Card,
+  CardBody,
+  CardHeader,
   Modal,
   ModalBody,
   ModalContent,
@@ -29,7 +32,7 @@ import { useMemo, useState } from "react";
 import AddModal from "./AddModal";
 import UpdateDower from "./UpdateDrawer";
 import ImportDrawer from "./ImportDrawer";
-const { TextArea } = Input;
+
 export default function DateList({ params }: { params: { id: string } }) {
   const { data: fields, isLoading: fieldsLoading } = useQuery<
     {
@@ -40,7 +43,7 @@ export default function DateList({ params }: { params: { id: string } }) {
   >({
     queryKey: [`/default/${params.id}`],
     select(data) {
-      return data.data.template.fields;
+      return data.data.fields;
     },
   });
 
@@ -129,45 +132,53 @@ export default function DateList({ params }: { params: { id: string } }) {
   return (
     <div>
       {messageHolder}
-      <Breadcrumb
-        items={[
-          {
-            title: (
-              <Link href="/">
-                <HomeOutlined />
-              </Link>
-            ),
-          },
-          {
-            title: <span>数据列表</span>,
-          },
-        ]}
-      />
-      <div className=" p-4">
-        <div className="flex gap-4 mb-4">
-          <Button
-            size="sm"
-            color="primary"
-            onClick={onOpen}
-            isLoading={fieldsLoading}
-          >
-            添加数据
-          </Button>
-          <Button size="sm" color="primary" onClick={() => setImportOpen(true)}>
-            导入数据
-          </Button>
-        </div>
-        <Table
-          columns={columns}
-          rowKey={(item) => item.id}
-          dataSource={data}
-          loading={isLoading}
-          size="small"
-          pagination={{
-            defaultPageSize: 20,
-          }}
-        />
-      </div>
+      <Card>
+        <CardHeader>
+          <Breadcrumb
+            items={[
+              {
+                title: (
+                  <Link href="/">
+                    <HomeOutlined />
+                  </Link>
+                ),
+              },
+              {
+                title: <span>数据列表</span>,
+              },
+            ]}
+          />
+        </CardHeader>
+        <CardBody>
+          <div className="flex gap-4 mb-4">
+            <Button
+              size="sm"
+              color="primary"
+              onClick={onOpen}
+              isLoading={fieldsLoading}
+            >
+              添加数据
+            </Button>
+            <Button
+              size="sm"
+              color="primary"
+              onClick={() => setImportOpen(true)}
+            >
+              导入数据
+            </Button>
+          </div>
+          <Table
+            columns={columns}
+            rowKey={(item) => item.id}
+            dataSource={data}
+            loading={isLoading}
+            size="small"
+            pagination={{
+              defaultPageSize: 20,
+            }}
+          />
+        </CardBody>
+      </Card>
       <AddModal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
