@@ -1,15 +1,18 @@
-use std::path::{Path, PathBuf};
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
 
 use crate::{error::ServerError, ServeResult, ADDR};
 use axum::{
-    extract::{DefaultBodyLimit, Multipart},
+    extract::{DefaultBodyLimit, Multipart, Path as AxumPath},
     http::StatusCode,
     response::IntoResponse,
     routing::post,
     Json, Router,
 };
 use serde_json::json;
-use tracing::info;
+use std::fs;
 
 pub fn hash(input: impl AsRef<[u8]>) -> String {
     let digest = md5::compute(input);
@@ -39,7 +42,7 @@ async fn upload(mut multipart: Multipart) -> ServeResult<impl IntoResponse> {
                 "write file error".to_string(),
             )
         })?;
-        let url = format!("http://{}/{}", &ADDR.to_string(),filename);
+        let url = format!("http://{}/{}", &ADDR.to_string(), filename);
         urls.push(url);
     }
 
@@ -51,5 +54,40 @@ async fn upload(mut multipart: Multipart) -> ServeResult<impl IntoResponse> {
 pub fn upload_router() -> Router {
     Router::new()
         .route("/upload", post(upload))
+        .route("/upload/:name", post(upload_image))
         .layer(DefaultBodyLimit::max(1024 * 1024 * 100))
+}
+
+async fn upload_image(
+    AxumPath(name): AxumPath<String>,
+    mut multipart: Multipart,
+) -> ServeResult<impl IntoResponse> {
+    let mut urls = vec![];
+    let path = PathBuf::from(env::current_dir().unwrap()).join(name);
+
+    let dir_path=path.to_str().unwrap();
+    let _ = fs::read_dir(dir_path).is_err_and(|_| {
+        fs::create_dir_all(dir_path).unwrap();
+        return true;
+    });
+
+    while let Some(file) = multipart
+        .next_field()
+        .await
+        .map_err(|_| ServerError(StatusCode::BAD_REQUEST, "bad request".to_string()))?
+    {
+        let filename = file.file_name().unwrap();
+        let file_path=Path::new(dir_path).join(filename.clone());
+        let bytes = file.bytes().await.unwrap();
+        
+
+        fs::write(&file_path, bytes)
+            .map_err(|_| ServerError(StatusCode::INTERNAL_SERVER_ERROR, "write file error".to_string()))?;
+        let url = format!("http://{}/{}", &ADDR.to_string(),file_path.to_str().unwrap());
+        urls.push(url)
+    }
+
+    Ok(Json(json!({
+        "url":urls,
+    })))
 }

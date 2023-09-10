@@ -6,6 +6,9 @@ const nextConfig = {
   output: "export",
   distDir: "dist",
   basePath: "/web",
+  images: {
+    domains: ["http://127.0.0.1"],
+  },
 };
 
 module.exports = nextConfig;

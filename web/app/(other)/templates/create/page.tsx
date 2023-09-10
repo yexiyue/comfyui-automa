@@ -105,7 +105,7 @@ export default () => {
             getValueFromEvent={normFile}
           >
             <Upload
-              action="http://127.0.0.1:4060/upload"
+              action={`${process.env.server}/upload`}
               onPreview={handlePreview}
               accept=".png,.jpg,.jpeg,.webp"
               maxCount={1}
@@ -113,7 +113,7 @@ export default () => {
             >
               <div>
                 <PlusOutlined />
-                <div style={{ marginTop: 8 }}>Upload</div>
+                <div style={{ marginTop: 8 }}>上传图片</div>
               </div>
             </Upload>
           </Form.Item>
