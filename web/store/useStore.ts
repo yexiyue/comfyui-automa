@@ -11,6 +11,10 @@ export type DatesList = {
     cover: string;
     template_id: string;
     template: Template;
+    meta?: {
+        name: string;
+        value: string
+    }[];
     [key: string]: any
 }
 

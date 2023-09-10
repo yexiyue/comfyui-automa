@@ -28,7 +28,7 @@ export default function DateMeta({ params }: { params: { id: string } }) {
   });
 
   const [messageApi, contextHolder] = message.useMessage();
-  
+
   // TODO 从元数据中进行展示，在设置中添加元数据
 
   return (
@@ -77,7 +77,13 @@ export default function DateMeta({ params }: { params: { id: string } }) {
                   {moment(data?.create_time).format("YYYY年MM月DD日 HH:mm:ss")}
                 </Chip>
               </p>
-              
+              {data?.meta?.map((item) => (
+                <p>
+                  <Chip color="warning">
+                    {item.name}：{item.value}
+                  </Chip>
+                </p>
+              ))}
             </div>
           </div>
         </CardBody>

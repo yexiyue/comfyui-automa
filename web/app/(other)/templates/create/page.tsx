@@ -14,7 +14,6 @@ import {
 } from "antd";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Template } from "../page";
 import { useMutation } from "@tanstack/react-query";
 import { mutationFn } from "@/api/queryFn";
 

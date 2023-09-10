@@ -47,7 +47,7 @@ pub async fn hello_world() -> impl IntoResponse {
 pub fn static_serve() -> Router {
     Router::new().nest_service(
         "/",
-        ServeDir::new("public").fallback(service_fn(move |req: Request<Body>| async move {
+        ServeDir::new("public").fallback(service_fn(|req: Request<Body>| async move {
             let uri = req.uri().to_string();
             let res = Response::builder();
             let res = res.status(304);
