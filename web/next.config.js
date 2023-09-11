@@ -4,11 +4,8 @@ const nextConfig = {
     server: "http://localhost:4060",
   },
   output: "export",
-  distDir: "dist",
   basePath: "/web",
-  images: {
-    domains: ["http://127.0.0.1"],
-  },
+  distDir: "dist",
 };
 
 module.exports = nextConfig;
