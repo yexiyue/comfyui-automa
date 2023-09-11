@@ -9,7 +9,6 @@ import { Link } from "react-router-dom";
 import { SunIcon, MoonIcon, Cog8ToothIcon } from "@heroicons/react/20/solid";
 import { useLocation } from "react-router-dom";
 import { useStore } from "@/store/useStore";
-import { useDarkMode } from "@reactuses/core";
 export default function Header() {
   const [theme, setTheme] = useStore((store) => [store.theme, store.setTheme]);
   const { pathname } = useLocation();
@@ -60,7 +59,7 @@ export default function Header() {
             size="sm"
             as={Link}
             color="primary"
-            href="/setting"
+            to="/setting"
             variant="flat"
           >
             <Cog8ToothIcon className="w-5 h-5"></Cog8ToothIcon>

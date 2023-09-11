@@ -20,7 +20,7 @@ export default function ListMenuItem({ id }: ListMenuItemProps) {
         color="primary"
         startContent={<PhotoIcon className="w-4 h-4"></PhotoIcon>}
         onClick={() => {
-          router(`/dates/${id}/`);
+          router(`/dates/${id}/image`);
         }}
       >
         图片空间
