@@ -1,4 +1,4 @@
-import { Template } from "@/app/(other)/templates/page";
+import { Template } from "@/pages/templates";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";

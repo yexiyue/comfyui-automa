@@ -43,7 +43,9 @@ pub async fn create(
             dbs.get(&date).unwrap()
         }
     };
-    let res = db.create(&value).map_err(|_| {
+    let mut data = value.clone();
+    data["open"] = json!(true);
+    let res = db.create(&data).map_err(|_| {
         ServerError(
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to create".to_string(),
@@ -141,7 +143,9 @@ pub async fn create_from_list(
     };
     let values = value.clone();
     for v in values.as_array().unwrap() {
-        db.create(&v).map_err(|_| {
+        let mut data = v.clone();
+        data["open"] = json!(true);
+        db.create(&data).map_err(|_| {
             ServerError(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to create".to_string(),
@@ -165,15 +169,17 @@ pub async fn create_force(
             dbs.get(&date).unwrap()
         }
     };
-    let old_values=db.find_all().unwrap();
+    let old_values = db.find_all().unwrap();
     for v in old_values {
-        let id=v["id"].as_str().unwrap();
+        let id = v["id"].as_str().unwrap();
         db.delete(id).unwrap();
     }
-    
+
     let values = value.clone();
     for v in values.as_array().unwrap() {
-        db.create(&v).map_err(|_| {
+        let mut data = v.clone();
+        data["open"] = json!(true);
+        db.create(&data).map_err(|_| {
             ServerError(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to create".to_string(),

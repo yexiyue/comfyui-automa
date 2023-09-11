@@ -59,20 +59,20 @@ export const TemplateDetail = () => {
 
   useEffect(() => {
     if (!data) return;
-
-    if (data.data.cover) {
-      setImage(data.data.cover);
-      const name: string[] = data.data.cover.split("/");
-      data.data.cover = [
+    let value = { ...data.data };
+    if (value.cover) {
+      setImage(value.cover);
+      const name: string[] = value.cover.split("/");
+      value.cover = [
         {
           uid: -1,
           name: name[name.length - 1],
           status: "done",
-          url: data.data.cover,
+          url: value.cover,
         },
       ] as any;
     }
-    form.setFieldsValue(data.data);
+    form.setFieldsValue(value);
   }, [data]);
 
   const [fieldOpen, setFieldOpen] = useState(false);
@@ -148,7 +148,7 @@ export const TemplateDetail = () => {
                 getValueFromEvent={normFile}
               >
                 <Upload
-                  action={`${import.meta.env.VITE_SERVER}/upload`}
+                  action={`${import.meta.env.VITE_SERVER_URL}/upload`}
                   onPreview={handlePreview}
                   accept=".png,.jpg,.jpeg,.webp"
                   maxCount={1}
@@ -223,16 +223,13 @@ export const TemplateDetail = () => {
               </div>
               <div className="mt-6 flex justify-around">
                 <Button
-                  type="primary"
                   onClick={() => {
                     history.back();
                   }}
                 >
                   取消
                 </Button>
-                <Button type="primary" onClick={onSubmit}>
-                  更新模版
-                </Button>
+                <Button onClick={onSubmit}>更新模版</Button>
               </div>
             </Form>
             <TemplateField

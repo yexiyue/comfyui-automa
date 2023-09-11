@@ -9,7 +9,7 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Breadcrumb, Form, Popconfirm, Table, message } from "antd";
+import { Breadcrumb, Form, Popconfirm, Switch, Table, message } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { Link, useParams } from "react-router-dom";
 import { useMemo, useState } from "react";
@@ -42,6 +42,19 @@ export default function DateList() {
       mutationFn(`/dates/${params.id}/${id}`, "delete")(null),
   });
 
+  const { mutate: updateMutation } = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      mutationFn(`/dates/${params.id}/${id}`, "put")(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [`/dates/${params.id}`],
+      });
+      messageApi.success("更新成功", 1);
+    },
+    onError(error) {
+      messageApi.error(error.message, 1);
+    },
+  });
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
   const [form] = Form.useForm();
   const [open, setOpen] = useState(false);
@@ -61,6 +74,17 @@ export default function DateList() {
         width: 200,
         render: (text, record, index) => (
           <div className="flex items-center justify-around">
+            <Switch
+              checked={record.open}
+              onChange={() => {
+                updateMutation({
+                  id: record.id,
+                  data: {
+                    open: !record.open,
+                  },
+                });
+              }}
+            ></Switch>
             <Button
               size="sm"
               color="primary"

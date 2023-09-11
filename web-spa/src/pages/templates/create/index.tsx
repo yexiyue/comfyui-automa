@@ -104,7 +104,7 @@ export const TemplateCreate = () => {
             getValueFromEvent={normFile}
           >
             <Upload
-              action={`${import.meta.env.VITE_SERVER}/upload`}
+              action={`${import.meta.env.VITE_SERVER_URL}/upload`}
               onPreview={handlePreview}
               accept=".png,.jpg,.jpeg,.webp"
               maxCount={1}
@@ -174,7 +174,7 @@ export const TemplateCreate = () => {
             </Button>
           </div>
           <div className="mt-6">
-            <Button block type="primary" onClick={onSubmit}>
+            <Button block onClick={onSubmit}>
               添加模版
             </Button>
           </div>

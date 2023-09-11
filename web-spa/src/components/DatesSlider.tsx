@@ -15,7 +15,7 @@ export default function Slider() {
   const { data: datesList, isSuccess } = useQuery<DatesList[]>({
     queryKey: ["/default"],
   });
-  console.log(datesList);
+
   return (
     <div className="flex flex-col fixed w-1/5 top-14 h-full ease-in-out">
       <Button

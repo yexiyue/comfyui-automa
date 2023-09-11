@@ -1,8 +1,7 @@
-use std::{env, fs, fs::DirEntry, path::PathBuf};
+use std::{env, fs, path::PathBuf};
 
 use axum::{extract::Path, response::IntoResponse, routing::get, Json, Router};
 use serde_json::json;
-use tracing::info;
 
 use crate::{ServeResult, ADDR};
 

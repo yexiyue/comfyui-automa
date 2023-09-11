@@ -11,6 +11,12 @@ import {
   CardHeader,
   Button as NextButton,
   CircularProgress,
+  Modal as NextModal,
+  ModalContent,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  useDisclosure,
 } from "@nextui-org/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -24,7 +30,7 @@ import {
   UploadFile,
   message,
 } from "antd";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 const { TextArea } = Input;
 export default function DateSetting() {
@@ -41,29 +47,33 @@ export default function DateSetting() {
       return data.data;
     },
   });
-  const [image, setImage] = useState("");
   useEffect(() => {
     if (!data) return;
-
-    if (data.cover) {
-      setImage(data.cover);
-      let name: string[] = data.cover.split("/");
-      data.cover = [
+    let value = { ...data };
+    if (value.cover) {
+      setImage(value.cover);
+      let name: string[] = value.cover.split("/");
+      value.cover = [
         {
           uid: -1,
           name: name[name.length - 1],
           status: "done",
-          url: data.cover,
+          url: value.cover,
         },
       ] as any;
     }
-    form.setFieldsValue(data);
+    form.setFieldsValue(value);
   }, [data]);
+  const [image, setImage] = useState("");
   const [messageApi, contextHolder] = message.useMessage();
   const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
     mutationFn: mutationFn(`/default/${params.id}`, "put"),
+  });
+
+  const { mutate: deleteMutate } = useMutation({
+    mutationFn: mutationFn(`/default/${params.id}`, "delete"),
   });
 
   const normFile = (e: any) => {
@@ -105,6 +115,9 @@ export default function DateSetting() {
       },
     });
   };
+
+  const { isOpen, onOpenChange, onOpen } = useDisclosure();
+  const router = useNavigate();
   return (
     <>
       {contextHolder}
@@ -162,7 +175,7 @@ export default function DateSetting() {
                 getValueFromEvent={normFile}
               >
                 <Upload
-                  action={`${import.meta.env.VITE_API_URL}/upload`}
+                  action={`${import.meta.env.VITE_SERVER_URL}/upload`}
                   onPreview={handlePreview}
                   accept=".png,.jpg,.jpeg,.webp"
                   maxCount={1}
@@ -216,7 +229,15 @@ export default function DateSetting() {
                   </>
                 )}
               </Form.List>
-              <div className="mt-6">
+              <div className="mt-6 flex gap-4">
+                <NextButton
+                  color="danger"
+                  className="w-full"
+                  variant="light"
+                  onClick={onOpen}
+                >
+                  删除
+                </NextButton>
                 <NextButton
                   color="primary"
                   className="w-full"
@@ -243,6 +264,42 @@ export default function DateSetting() {
           </div>
         </CardBody>
       </Card>
+      <NextModal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">警告</ModalHeader>
+              <ModalBody>
+                <p className="text-xl">确定删除该数据集吗？</p>
+              </ModalBody>
+              <ModalFooter>
+                <NextButton color="primary" variant="light" onPress={onClose}>
+                  取消
+                </NextButton>
+                <NextButton
+                  color="danger"
+                  onPress={() => {
+                    deleteMutate(undefined, {
+                      onSuccess() {
+                        queryClient.invalidateQueries({
+                          queryKey: ["/default"],
+                        });
+                        messageApi.success("删除成功", 1).then(() => {
+                          router("/", {
+                            replace: true,
+                          });
+                        });
+                      },
+                    });
+                  }}
+                >
+                  确定
+                </NextButton>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </NextModal>
     </>
   );
 }

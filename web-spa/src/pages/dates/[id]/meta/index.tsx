@@ -58,7 +58,10 @@ export default function DateMeta() {
               backgroundImage: `url(${data?.cover})`,
             }}
           >
-            <div className="flex mt-6 gap-2 flex-col bg-[#00000050] rounded-2xl w-1/3 p-5 items-center backdrop-blur-sm">
+            <div className="flex mt-6 gap-2 flex-col bg-[#00000050] rounded-2xl w-2/3 p-5 items-center backdrop-blur-sm">
+              <p>
+                <Chip color="primary">数据接口：{`${import.meta.env.VITE_SERVER_URL}/apis/${params.id}`}</Chip>
+              </p>
               <p>
                 <Chip color="primary">数据集名称：{data?.name}</Chip>
               </p>

@@ -1,3 +1,5 @@
+use std::{fs, env, path::PathBuf};
+
 use axum::{extract::Path, http::StatusCode, response::IntoResponse, Extension, Json};
 use serde_json::{json, Value};
 
@@ -41,7 +43,7 @@ pub async fn create(
             dbs.get(DATE).unwrap()
         }
     };
-    
+
     let res = db.create(&value).map_err(|_| {
         ServerError(
             StatusCode::INTERNAL_SERVER_ERROR,
@@ -109,6 +111,8 @@ pub async fn delete(
             dbs.get(DATE).unwrap()
         }
     };
+    let path=PathBuf::from(env::current_dir().unwrap()).join("db").join(&id);
+    fs::remove_dir_all(path).unwrap();
     let data = db.find_by_id(&id).map_err(|_| {
         ServerError(
             StatusCode::INTERNAL_SERVER_ERROR,
@@ -121,5 +125,8 @@ pub async fn delete(
             "failed to delete".to_string(),
         )
     })?;
+    
     Ok(Json(json!({ "data": data })))
 }
+
+

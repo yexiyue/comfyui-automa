@@ -8,7 +8,6 @@ import {
   Image,
   CircularProgress,
   useDisclosure,
-  CardFooter,
   Modal,
   ModalBody,
   ModalContent,
@@ -139,7 +138,7 @@ export default function DateImage() {
         <div className="w-[80%] h-[40%] mt-8 mx-auto">
           <Dragger
             accept=".jpg,.png,.jpeg,.webp"
-            action={`${import.meta.env.VITE_API_URL}/upload/${data?.name}`}
+            action={`${import.meta.env.VITE_SERVER_URL}/upload/${data?.name}`}
             maxCount={10}
             multiple
           >

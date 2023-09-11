@@ -7,7 +7,7 @@ use axum::{
 };
 use error::ServerError;
 use once_cell::sync::Lazy;
-use std::{env, net::SocketAddr, path::Path};
+use std::{env, net::SocketAddr};
 use tower::service_fn;
 use tower_http::{catch_panic::CatchPanicLayer, cors::CorsLayer, services::ServeDir};
 use tracing::info;
@@ -21,6 +21,7 @@ pub mod error;
 pub mod images;
 pub mod templates;
 pub mod upload;
+pub mod apis;
 type ServeResult<T> = Result<T, ServerError>;
 
 static ADDR: Lazy<SocketAddr> = Lazy::new(|| "127.0.0.1:4060".parse().unwrap());
@@ -33,6 +34,7 @@ pub async fn start() {
         .merge(templates::templates_router())
         .merge(dates::dates_router())
         .merge(images::image_router())
+        .merge(apis::api_routers())
         .layer(Extension(DBS.clone()))
         .layer(CorsLayer::permissive())
         .layer(CatchPanicLayer::new())
@@ -43,7 +45,7 @@ pub async fn start() {
 }
 
 pub async fn hello_world() -> impl IntoResponse {
-    axum::response::Redirect::to("/web/index.html")
+    axum::response::Redirect::to("/web/")
 }
 
 pub fn static_serve() -> Router {
@@ -54,7 +56,7 @@ pub fn static_serve() -> Router {
             ServeDir::new("public").fallback(service_fn(|req: Request<Body>| async move {
                 let uri = req.uri().to_string();
                 let res = Response::builder();
-                let res = res.status(200);
+                let res = res.status(301);
                 let res = res.header("location", uri);
                 let res = res.body(Body::empty()).unwrap();
                 Ok(res)
