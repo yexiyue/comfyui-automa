@@ -7,13 +7,14 @@ use axum::{
 };
 use error::ServerError;
 use once_cell::sync::Lazy;
-use std::{env, net::SocketAddr};
+use std::{env, net::SocketAddr, path::PathBuf};
 use tower::service_fn;
 use tower_http::{catch_panic::CatchPanicLayer, cors::CorsLayer, services::ServeDir};
 use tracing::info;
 
 use crate::database::DBS;
 
+pub mod apis;
 pub mod database;
 pub mod dates;
 pub mod defaults;
@@ -21,7 +22,6 @@ pub mod error;
 pub mod images;
 pub mod templates;
 pub mod upload;
-pub mod apis;
 type ServeResult<T> = Result<T, ServerError>;
 
 static ADDR: Lazy<SocketAddr> = Lazy::new(|| "127.0.0.1:4060".parse().unwrap());
@@ -50,10 +50,27 @@ pub async fn hello_world() -> impl IntoResponse {
 
 pub fn static_serve() -> Router {
     Router::new()
-        .nest_service("/images", ServeDir::new(env::current_dir().unwrap()))
+        .nest_service(
+            "/images",
+            ServeDir::new(
+                env::current_exe()
+                    .unwrap()
+                    .parent()
+                    .unwrap(),
+            ),
+        )
         .nest_service(
             "/",
-            ServeDir::new("public").fallback(service_fn(|req: Request<Body>| async move {
+            ServeDir::new(
+                PathBuf::from(
+                    env::current_exe()
+                        .unwrap()
+                        .parent()
+                        .unwrap(),
+                )
+                .join("public"),
+            )
+            .fallback(service_fn(|req: Request<Body>| async move {
                 let uri = req.uri().to_string();
                 let res = Response::builder();
                 let res = res.status(301);

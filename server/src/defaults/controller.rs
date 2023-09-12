@@ -1,4 +1,4 @@
-use std::{fs, env, path::PathBuf};
+use std::{env, fs, path::PathBuf};
 
 use axum::{extract::Path, http::StatusCode, response::IntoResponse, Extension, Json};
 use serde_json::{json, Value};
@@ -111,7 +111,9 @@ pub async fn delete(
             dbs.get(DATE).unwrap()
         }
     };
-    let path=PathBuf::from(env::current_dir().unwrap()).join("db").join(&id);
+    let path = PathBuf::from(env::current_exe().unwrap().parent().unwrap())
+        .join("db")
+        .join(&id);
     fs::remove_dir_all(path).unwrap();
     let data = db.find_by_id(&id).map_err(|_| {
         ServerError(
@@ -125,8 +127,6 @@ pub async fn delete(
             "failed to delete".to_string(),
         )
     })?;
-    
+
     Ok(Json(json!({ "data": data })))
 }
-
-

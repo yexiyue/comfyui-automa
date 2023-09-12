@@ -63,9 +63,9 @@ async fn upload_image(
     mut multipart: Multipart,
 ) -> ServeResult<impl IntoResponse> {
     let mut urls = vec![];
-    let path = PathBuf::from(env::current_dir().unwrap()).join(name);
+    let path = PathBuf::from(env::current_exe().unwrap().parent().unwrap()).join(name);
 
-    let dir_path=path.to_str().unwrap();
+    let dir_path = path.to_str().unwrap();
     let _ = fs::read_dir(dir_path).is_err_and(|_| {
         fs::create_dir_all(dir_path).unwrap();
         return true;
@@ -77,13 +77,20 @@ async fn upload_image(
         .map_err(|_| ServerError(StatusCode::BAD_REQUEST, "bad request".to_string()))?
     {
         let filename = file.file_name().unwrap();
-        let file_path=Path::new(dir_path).join(filename.clone());
+        let file_path = Path::new(dir_path).join(filename.clone());
         let bytes = file.bytes().await.unwrap();
-        
 
-        fs::write(&file_path, bytes)
-            .map_err(|_| ServerError(StatusCode::INTERNAL_SERVER_ERROR, "write file error".to_string()))?;
-        let url = format!("http://{}/{}", &ADDR.to_string(),file_path.to_str().unwrap());
+        fs::write(&file_path, bytes).map_err(|_| {
+            ServerError(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "write file error".to_string(),
+            )
+        })?;
+        let url = format!(
+            "http://{}/{}",
+            &ADDR.to_string(),
+            file_path.to_str().unwrap()
+        );
         urls.push(url)
     }
 

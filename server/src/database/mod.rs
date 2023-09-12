@@ -1,12 +1,14 @@
 use once_cell::sync::Lazy;
 use rocksdb::{Options, DB};
 use serde_json::{json, Value};
-use tracing::info;
 use std::{
     collections::HashMap,
+    env,
     ops::{Deref, DerefMut},
+    path::PathBuf,
     sync::{Arc, Mutex},
 };
+use tracing::info;
 use uuid::Uuid;
 
 static DB_PATH: &str = "db";
@@ -22,7 +24,11 @@ pub struct DataBase {
 
 impl Default for DataBase {
     fn default() -> Self {
-        let db = DB::open(&DB_OPTIONS, DB_PATH).unwrap();
+        let db = DB::open(
+            &DB_OPTIONS,
+            PathBuf::from(env::current_exe().unwrap().parent().unwrap()).join(DB_PATH),
+        )
+        .unwrap();
         Self { db }
     }
 }
@@ -42,7 +48,17 @@ impl DerefMut for DataBase {
 
 impl DataBase {
     pub fn new(name: &str) -> Self {
-        let db = DB::open(&DB_OPTIONS, format!("{}/{}", DB_PATH, name)).unwrap();
+        let db = DB::open(
+            &DB_OPTIONS,
+            PathBuf::from(
+                env::current_exe()
+                    .unwrap()
+                    .parent()
+                    .unwrap(),
+            )
+            .join(format!("{}/{}", DB_PATH, name)),
+        )
+        .unwrap();
         Self { db }
     }
 
@@ -90,11 +106,11 @@ impl DataBase {
     /// 传入全量数据
     pub fn update(&self, id: &str, value: &Value) -> Result<Uuid, rocksdb::Error> {
         let uuid = Uuid::parse_str(id).expect("uuid解析错误");
-        let mut preValue=self.find_by_id(id).unwrap().unwrap();
+        let mut preValue = self.find_by_id(id).unwrap().unwrap();
         let data = value.clone();
-        let data=data.as_object().unwrap();
-        for (key,v) in data {
-            preValue[key]=v.clone();
+        let data = data.as_object().unwrap();
+        for (key, v) in data {
+            preValue[key] = v.clone();
         }
         self.db.put(uuid, preValue.to_string())?;
         Ok(uuid)

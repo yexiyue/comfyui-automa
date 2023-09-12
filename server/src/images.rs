@@ -6,7 +6,13 @@ use serde_json::json;
 use crate::{ServeResult, ADDR};
 
 pub async fn get_images_list(Path(path): Path<String>) -> ServeResult<impl IntoResponse> {
-    let dir = PathBuf::from(env::current_dir().unwrap()).join(&path);
+    let dir = PathBuf::from(
+        env::current_exe()
+            .unwrap()
+            .parent()
+            .unwrap(),
+    )
+    .join(&path);
     let res = fs::read_dir(dir);
     if res.is_ok() {
         let res = res.unwrap();
