@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+#![allow(unused_imports)]
 use axum::{
     body::Body,
     http::Request,
@@ -40,6 +42,7 @@ pub async fn start() {
         .layer(CatchPanicLayer::new())
         .fallback_service(static_serve());
     let server = Server::bind(&ADDR).serve(app.into_make_service());
+    open::that(format!("http://{}", server.local_addr())).unwrap();
     info!("Server listening on http://{:?}", server.local_addr());
     server.await.unwrap();
 }
