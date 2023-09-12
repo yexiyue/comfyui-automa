@@ -25,6 +25,9 @@ export default function TemplateField(props: TemplateFieldProps) {
           form.submit();
         });
       }}
+      okButtonProps={{
+        type: "default",
+      }}
     >
       <Form form={form} layout="vertical" name="fieldForm">
         <Form.Item name="fieldName" label="字段名" rules={[{ required: true }]}>

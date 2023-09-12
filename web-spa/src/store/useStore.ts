@@ -9,8 +9,7 @@ export type DatesList = {
     name: string;
     description: string
     cover: string;
-    template_id: string;
-    template: Template;
+    fields: Template['fields'];
     meta?: {
         name: string;
         value: string

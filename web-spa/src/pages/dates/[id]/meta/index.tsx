@@ -53,7 +53,7 @@ export default function DateMeta() {
         </CardHeader>
         <CardBody>
           <div
-            className="bg-no-repeat bg-current bg-cover h-[calc(100vh-100px)] flex justify-center items-center"
+            className="bg-no-repeat bg-current bg-center bg-cover h-[calc(100vh-100px)] flex justify-center items-center"
             style={{
               backgroundImage: `url(${data?.cover})`,
             }}

@@ -21,7 +21,7 @@ export default function Header() {
   return (
     <Navbar className=" border-b-1 h-14" shouldHideOnScroll>
       <NavbarBrand>
-        <p className="font-bold text-inherit">YEXIYUE</p>
+        <p className="font-bold text-inherit">ConmfyUI Automa</p>
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-4 flex-1" justify="center">
         <NavbarItem isActive={pathname === "/"}>

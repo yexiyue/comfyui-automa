@@ -87,7 +87,7 @@ export default ({
         }
       >
         <Form form={form} layout="vertical">
-          {fields?.map((item) => (
+          {fields?.map((item:any) => (
             <Form.Item
               label={item.fieldName}
               name={item.fieldName}

@@ -1,7 +1,7 @@
 import TemplateField from "@/components/TemplateField";
 import { PlusOutlined, SmileOutlined } from "@ant-design/icons";
 import {
-  Button,
+  Button as AntdButton,
   Form,
   Input,
   Modal,
@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { mutationFn } from "@/api/queryFn";
+import { Button } from "@nextui-org/react";
 
 const { TextArea } = Input;
 
@@ -141,8 +142,7 @@ export const TemplateCreate = () => {
                         <Tag color="orange">{field.defaultValue}</Tag>
                       )}
                       <Button
-                        size="small"
-                        danger
+                        size="sm"
                         onClick={() => {
                           let newValue = fields.filter((_, i) => i !== index);
                           setFieldsValue({ fields: newValue });
@@ -162,7 +162,7 @@ export const TemplateCreate = () => {
             }}
           </Form.Item>
           <div className="w-56 mx-auto">
-            <Button
+            <AntdButton
               type="dashed"
               onClick={() => {
                 setFieldOpen(true);
@@ -171,10 +171,10 @@ export const TemplateCreate = () => {
               icon={<PlusOutlined />}
             >
               添加模版字段
-            </Button>
+            </AntdButton>
           </div>
           <div className="mt-6">
-            <Button block onClick={onSubmit}>
+            <Button color="primary" className="w-full" variant="shadow" onClick={onSubmit}>
               添加模版
             </Button>
           </div>
