@@ -51,7 +51,7 @@ export const TemplateCreate = () => {
     if (values.cover) {
       values.cover = values.cover[0].response.url[0];
     } else {
-      values.cover = "/web/default.png";
+      values.cover = `${import.meta.env.VITE_SERVER_URL}/default.png`;
     }
 
     mutate(values, {

@@ -30,6 +30,9 @@ export default function Header() {
         <NavbarItem isActive={pathname === "/templates"}>
           <Link to="/templates">模版</Link>
         </NavbarItem>
+        <NavbarItem isActive={pathname === "/automa"}>
+          <Link to="/automa">automa工作流</Link>
+        </NavbarItem>
         <NavbarItem isActive={pathname === "/about"}>
           <Link to="/about">关于</Link>
         </NavbarItem>

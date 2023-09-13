@@ -10,4 +10,7 @@ export default defineConfig({
     }
   },
   base: '/web',
+  build: {
+    outDir:"../test/public/web"
+  }
 })

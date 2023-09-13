@@ -39,8 +39,5 @@
     "vite": "^4.4.5",
     "xlsx": "^0.18.5",
     "zustand": "^4.4.1"
-  },
-  "devDependencies": {
-    "@tauri-apps/cli": "^1.4.0"
   }
 }

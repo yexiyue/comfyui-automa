@@ -10,6 +10,8 @@ import DateList from "@/pages/dates/[id]/list";
 import DateMeta from "@/pages/dates/[id]/meta";
 import DateSetting from "@/pages/dates/[id]/setting";
 import DateImage from "@/pages/dates/[id]/image";
+import { Automa } from "@/pages/automa";
+import { About } from "@/pages/about";
 export const router = createHashRouter([
   {
     path: "/",
@@ -56,6 +58,14 @@ export const router = createHashRouter([
       {
         path: "templates/:id",
         Component: TemplateDetail,
+      },
+      {
+        path: "automa",
+        Component: Automa,
+      },
+      {
+        path: "about",
+        Component: About,
       },
     ],
   },
