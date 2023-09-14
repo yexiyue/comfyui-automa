@@ -114,7 +114,10 @@ pub async fn delete(
     let path = PathBuf::from(env::current_exe().unwrap().parent().unwrap())
         .join("db")
         .join(&id);
-    fs::remove_dir_all(path).unwrap();
+    if fs::read_dir(&path).is_ok() {
+        fs::remove_dir_all(path).unwrap();
+    }
+
     let data = db.find_by_id(&id).map_err(|_| {
         ServerError(
             StatusCode::INTERNAL_SERVER_ERROR,

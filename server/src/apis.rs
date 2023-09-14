@@ -1,7 +1,12 @@
 use axum::{extract::Path, http::StatusCode, response::IntoResponse, Extension, Json, Router};
 use serde_json::{json, Map, Value};
+use tracing::info;
 
-use crate::{database::{DBMAP, DataBase}, error::ServerError, ServeResult};
+use crate::{
+    database::{DataBase, DBMAP},
+    error::ServerError,
+    ServeResult,
+};
 pub async fn apis(
     Path(id): Path<String>,
     Extension(dbs): Extension<DBMAP>,
@@ -16,11 +21,20 @@ pub async fn apis(
         }
         Some(db) => db,
     };
+    info!("ID: {id}");
     let default = db
         .find_by_id(&id)
-        .map_err(|_| ServerError(StatusCode::BAD_REQUEST, "No default found".to_string()))?
-        .unwrap();
-    let id = default["id"].as_str().unwrap();
+        .map_err(|_| ServerError(StatusCode::BAD_REQUEST, "No default found".to_string()))?;
+    let default = match default {
+        Some(default) => default,
+        None => {
+            return Err(ServerError(
+                StatusCode::NOT_FOUND,
+                "该ID对应的数据不存在".to_string(),
+            ))
+        }
+    };
+    let id = default["id"].as_str().expect("数据没有ID");
 
     let value = if let Some(dates) = dbs.get(id) {
         dates.find_all().map_err(|_| {
@@ -30,7 +44,7 @@ pub async fn apis(
             )
         })?
     } else {
-        let my_dates=DataBase::new(id);
+        let my_dates = DataBase::new(id);
         dbs.insert(id.to_string(), my_dates);
         dbs.get(id).unwrap().find_all().map_err(|_| {
             ServerError(
