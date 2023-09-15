@@ -12,6 +12,11 @@ import DateSetting from "@/pages/dates/[id]/setting";
 import DateImage from "@/pages/dates/[id]/image";
 import { Automa } from "@/pages/automa";
 import { About } from "@/pages/about";
+import { Setting } from "@/pages/setting";
+import { ComfyUIPage } from "@/pages/comfyui";
+import { Comfyui } from "@/pages/comfyui/Comfyui";
+import { ComfyuiCreate } from "@/pages/comfyui/Create";
+
 export const router = createHashRouter([
   {
     path: "/",
@@ -66,6 +71,22 @@ export const router = createHashRouter([
       {
         path: "about",
         Component: About,
+      },
+      {
+        path: "setting",
+        Component: Setting,
+      },
+      {
+        path: "comfyui",
+        Component: ComfyUIPage,
+      },
+      {
+        path: "comfyui/server",
+        Component: Comfyui,
+      },
+      {
+        path: "/comfyui/create",
+        Component: ComfyuiCreate,
       },
     ],
   },

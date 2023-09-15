@@ -11,6 +11,16 @@ export default defineConfig({
   },
   base: '/web',
   build: {
-    outDir:"../test/public/web"
-  }
+    outDir: "../test/public/web"
+  },
+  // server: {
+  //   proxy: {
+  //     "/comfyui": {
+  //       target: "http://127.0.0.1:8188",
+  //       changeOrigin: true,
+  //       ws: true,
+  //       rewrite: (path) => path.replace(/^\/comfyui/, '')
+  //     }
+  //   }
+  // }
 })

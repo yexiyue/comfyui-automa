@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::{error::ServerError, ServeResult, ADDR};
+use crate::{error::ServerError, ServeResult, ADDR, start::SERVER_DIR};
 use axum::{
     extract::{DefaultBodyLimit, Multipart, Path as AxumPath},
     http::StatusCode,
@@ -63,7 +63,7 @@ async fn upload_image(
     mut multipart: Multipart,
 ) -> ServeResult<impl IntoResponse> {
     let mut urls = vec![];
-    let path = PathBuf::from(env::current_exe().unwrap().parent().unwrap()).join(name);
+    let path = PathBuf::from(SERVER_DIR.as_str()).join(name);
 
     let dir_path = path.to_str().unwrap();
     let _ = fs::read_dir(dir_path).is_err_and(|_| {

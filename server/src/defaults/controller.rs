@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 use crate::{
     database::{DataBase, DBMAP},
     error::ServerError,
-    ServeResult,
+    ServeResult, start::SERVER_DIR,
 };
 
 static DATE: &str = "default";
@@ -111,9 +111,7 @@ pub async fn delete(
             dbs.get(DATE).unwrap()
         }
     };
-    let path = PathBuf::from(env::current_exe().unwrap().parent().unwrap())
-        .join("db")
-        .join(&id);
+    let path = PathBuf::from(SERVER_DIR.as_str()).join("db").join(&id);
     if fs::read_dir(&path).is_ok() {
         fs::remove_dir_all(path).unwrap();
     }

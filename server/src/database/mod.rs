@@ -11,6 +11,8 @@ use std::{
 use tracing::info;
 use uuid::Uuid;
 
+use crate::start::SERVER_DIR;
+
 static DB_PATH: &str = "db";
 static DB_OPTIONS: Lazy<Options> = Lazy::new(|| {
     let mut options = Options::default();
@@ -26,7 +28,7 @@ impl Default for DataBase {
     fn default() -> Self {
         let db = DB::open(
             &DB_OPTIONS,
-            PathBuf::from(env::current_exe().unwrap().parent().unwrap()).join(DB_PATH),
+            PathBuf::from(SERVER_DIR.as_str()).join(DB_PATH),
         )
         .unwrap();
         Self { db }
@@ -50,13 +52,8 @@ impl DataBase {
     pub fn new(name: &str) -> Self {
         let db = DB::open(
             &DB_OPTIONS,
-            PathBuf::from(
-                env::current_exe()
-                    .unwrap()
-                    .parent()
-                    .unwrap(),
-            )
-            .join(format!("{}/{}", DB_PATH, name)),
+            PathBuf::from(env::current_exe().unwrap().parent().unwrap())
+                .join(format!("{}/{}", DB_PATH, name)),
         )
         .unwrap();
         Self { db }
