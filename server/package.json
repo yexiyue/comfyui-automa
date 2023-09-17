@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev":"cargo watch -w src -x run"
+    "dev": "cargo watch -w src -x run",
+    "test": "cargo build --release --out-dir ../test -Z unstable-options"
   },
   "keywords": [],
   "author": "",

@@ -20,7 +20,3 @@ pub async fn start_comfyui() -> ServeResult<impl IntoResponse> {
 pub static SERVER_DIR:Lazy<String>=Lazy::new(||{
     env::current_exe().unwrap().parent().unwrap().to_string_lossy().to_string()
 });
-
-fn download_comfyui(){
-    
-}

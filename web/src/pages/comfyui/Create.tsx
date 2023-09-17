@@ -22,7 +22,7 @@ const { TextArea } = Input;
 export const ComfyuiCreate = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const { mutate } = useMutation({
-    mutationFn: mutationFn("/comfyui_workflow", "post"),
+    mutationFn: mutationFn("/workflow/comfyui", "post"),
   });
   const normFile = (e: any) => {
     if (Array.isArray(e)) {
@@ -49,23 +49,23 @@ export const ComfyuiCreate = () => {
   const router = useNavigate();
   const onSubmit = async () => {
     const values = await form.validateFields();
-    console.log(prompt);
-    // if (values.cover) {
-    //   values.cover = values.cover[0].response.url[0];
-    // } else {
-    //   values.cover = `${import.meta.env.VITE_SERVER_URL}/default.png`;
-    // }
+    values.prompt = prompt;
+    if (values.cover) {
+      values.cover = values.cover[0].response.url[0];
+    } else {
+      values.cover = `${import.meta.env.VITE_SERVER_URL}/comfyui_cover_default.png`;
+    }
 
-    // mutate(values, {
-    //   onSuccess: () => {
-    //     messageApi.success("添加成功", 1).then(() => {
-    //       router("/comfyui_workflow");
-    //     });
-    //   },
-    //   onError(error) {
-    //     messageApi.error(error.message, 1);
-    //   },
-    // });
+    mutate(values, {
+      onSuccess: () => {
+        messageApi.success("添加成功", 1).then(() => {
+          router("/comfyui");
+        });
+      },
+      onError(error) {
+        messageApi.error(error.message, 1);
+      },
+    });
   };
 
   return (
@@ -73,7 +73,7 @@ export const ComfyuiCreate = () => {
       {contextHolder}
 
       <Form
-        name="comfyui_workflow"
+        name="workflow"
         labelCol={{ span: 4 }}
         wrapperCol={{
           span: 20,

@@ -26,6 +26,7 @@ pub mod proxy;
 pub mod start;
 pub mod templates;
 pub mod upload;
+pub mod comfyui_workflow;
 
 type ServeResult<T> = Result<T, ServerError>;
 
@@ -39,6 +40,7 @@ pub async fn start() {
         .merge(defaults::default_router())
         .merge(templates::templates_router())
         .merge(dates::dates_router())
+        .merge(comfyui_workflow::comfyui_workflow_router())
         .merge(images::image_router())
         .merge(apis::api_routers())
         .merge(proxy::proxy_router())
@@ -61,15 +63,16 @@ pub fn static_serve() -> Router {
         .nest_service("/images", ServeDir::new(PathBuf::from(SERVER_DIR.as_str())))
         .nest_service(
             "/",
-            ServeDir::new(PathBuf::from(SERVER_DIR.as_str()).join("public")).fallback(service_fn(
-                |req: Request<Body>| async move {
-                    let uri = req.uri().to_string();
-                    let res = Response::builder();
-                    let res = res.status(301);
-                    let res = res.header("location", uri);
-                    let res = res.body(Body::empty()).unwrap();
-                    Ok(res)
-                },
-            )),
+             ServeDir::new(PathBuf::from(SERVER_DIR.as_str()).join("public"))
+            // .fallback(service_fn(
+            //     |req: Request<Body>| async move {
+            //         let uri = req.uri().to_string();
+            //         let res = Response::builder();
+            //         let res = res.status(301);
+            //         let res = res.header("location", uri);
+            //         let res = res.body(Body::empty()).unwrap();
+            //         Ok(res)
+            //     },
+            // )),
         )
 }

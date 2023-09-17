@@ -16,6 +16,7 @@ import { Setting } from "@/pages/setting";
 import { ComfyUIPage } from "@/pages/comfyui";
 import { Comfyui } from "@/pages/comfyui/Comfyui";
 import { ComfyuiCreate } from "@/pages/comfyui/Create";
+import ComfyuiWorkflow from "@/pages/comfyui/workflow";
 
 export const router = createHashRouter([
   {
@@ -87,6 +88,10 @@ export const router = createHashRouter([
       {
         path: "/comfyui/create",
         Component: ComfyuiCreate,
+      },
+      {
+        path: "/comfyui/:id",
+        Component: ComfyuiWorkflow,
       },
     ],
   },

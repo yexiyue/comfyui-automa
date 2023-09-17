@@ -67,7 +67,7 @@ export const DatesCreate = () => {
     if (values.cover) {
       values.cover = values.cover[0].response.url[0];
     } else {
-      values.cover = `${import.meta.env.VITE_SERVER_URL}/default.png`;
+      values.cover = `${import.meta.env.VITE_SERVER_URL}/dates_cover_default.png`;
     }
 
     if (templates && values?.template_id) {

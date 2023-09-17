@@ -3,6 +3,7 @@ import { PlusIcon } from "@heroicons/react/24/outline";
 import { TemplateCard } from "@/components/TemplateCard";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { ComfyuiCard } from "@/components/ComfyuiCard";
 
 export type Template = {
   cover: string;
@@ -15,11 +16,11 @@ export type Template = {
 
 export const ComfyUIPage = () => {
   const {
-    data: templates,
+    data: workflows,
     isLoading,
     isSuccess,
   } = useQuery<Template[]>({
-    queryKey: ["/comfyui_workflow"],
+    queryKey: ["/workflow/comfyui"],
   });
 
   return (
@@ -31,8 +32,8 @@ export const ComfyUIPage = () => {
         ></CircularProgress>
       )}
       {isSuccess &&
-        templates.map((template) => (
-          <TemplateCard key={template.id} {...template}></TemplateCard>
+        workflows.map((template) => (
+          <ComfyuiCard key={template.id} {...template}></ComfyuiCard>
         ))}
       <Tooltip showArrow={true} content="添加工作流">
         <Button

@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::{error::ServerError, ServeResult, ADDR, start::SERVER_DIR};
+use crate::{error::ServerError, start::SERVER_DIR, ServeResult, ADDR};
 use axum::{
     extract::{DefaultBodyLimit, Multipart, Path as AxumPath},
     http::StatusCode,
@@ -29,7 +29,7 @@ async fn upload(mut multipart: Multipart) -> ServeResult<impl IntoResponse> {
         .await
         .map_err(|_| ServerError(StatusCode::BAD_REQUEST, "bad request".to_string()))?
     {
-        let mut path = PathBuf::from("public");
+        let mut path = PathBuf::from(&SERVER_DIR.to_string()).join("public");
         let filename = file.file_name().unwrap();
         let ext = get_extension(filename);
         let bytes = file.bytes().await.unwrap();
