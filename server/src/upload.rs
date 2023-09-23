@@ -77,7 +77,7 @@ async fn upload_image(
         .map_err(|_| ServerError(StatusCode::BAD_REQUEST, "bad request".to_string()))?
     {
         let filename = file.file_name().unwrap();
-        let file_path = Path::new(dir_path).join(filename.clone());
+        let file_path = Path::new(dir_path).join(filename);
         let bytes = file.bytes().await.unwrap();
 
         fs::write(&file_path, bytes).map_err(|_| {

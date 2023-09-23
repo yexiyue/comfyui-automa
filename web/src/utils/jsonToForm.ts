@@ -49,88 +49,88 @@ export interface FormatJsonValue<T extends FormItem> {
 }
 
 // 深度遍历获取节点相关的信息
-// function jsonToFormDeep(key: string, json: JsonType, data: ObjectInfo, forms: any = {}) {
-//   if (data == null || json[key].treated) return
+function jsonToFormDeep(key: string, json: JsonType, data: ObjectInfo, forms: any = {}) {
+  if (data == null || json[key].treated) return
 
-//   const inputs = json[key].inputs;
-//   const input = data[json[key].class_type].input.required;
+  const inputs = json[key].inputs;
+  const input = data[json[key].class_type].input.required;
 
-//   json[key].treated = true;
-//   forms[key] = {
+  json[key].treated = true;
+  forms[key] = {
 
-//   }
+  }
 
-//   for (const field in inputs) {
-//     let form = forms[key]
-//     if (Array.isArray(inputs[field])) {
-//       form[field] = jsonToFormDeep(inputs[field][0], json, data, form[field])
-//     } else {
-//       if (input[field]) {
-//         if (typeof input[field][0] === 'string') {
-//           let type = FormTypeMap?.[input[field][0]]
-//           if (type) {
-//             form[field] = {
-//               id: key,
-//               type,
-//               ...input[field][1],
-//               default: inputs[field],
-//               class_type: json[key].class_type
-//             }
-//           }
-//         } else if (Array.isArray(input[field][0])) {
-//           form[field] = {
-//             id: key,
-//             type: 'select',
-//             option: input[field][0],
-//             default: inputs[field],
-//             class_type: json[key].class_type
-//           }
-//           if (field === 'image') {
-//             form[field].image_upload = true
-//           }
+  for (const field in inputs) {
+    let form = forms[key]
+    if (Array.isArray(inputs[field])) {
+      form[field] = jsonToFormDeep(inputs[field][0], json, data, form[field])
+    } else {
+      if (input[field]) {
+        if (typeof input[field][0] === 'string') {
+          let type = FormTypeMap?.[input[field][0]]
+          if (type) {
+            form[field] = {
+              id: key,
+              type,
+              ...input[field][1],
+              default: inputs[field],
+              class_type: json[key].class_type
+            }
+          }
+        } else if (Array.isArray(input[field][0])) {
+          form[field] = {
+            id: key,
+            type: 'select',
+            option: input[field][0],
+            default: inputs[field],
+            class_type: json[key].class_type
+          }
+          if (field === 'image') {
+            form[field].image_upload = true
+          }
 
-//         }
-//       }
-//     }
-//   }
+        }
+      }
+    }
+  }
 
-//   return forms;
-// }
+  return forms;
+}
 
-// function jsonToFormDeep2(json: JsonType, data: ObjectInfo) {
-//   if (data == null) return
-//   let forms: any = {}
-//   for (const key in json) {
-//     jsonToFormDeep(key, json, data, forms)
-//   }
+export function jsonToFormDeep2(json: JsonType, data: ObjectInfo) {
+  if (data == null) return
+  let forms: any = {}
+  for (const key in json) {
+    jsonToFormDeep(key, json, data, forms)
+  }
 
-//   return forms;
-// }
+  return forms;
+}
 
-// // 对深度遍历的结果转换成数组
-// function formatFormDeepReturnValue(forms: any, res: any[] = []) {
+// 对深度遍历的结果转换成数组
+function formatFormDeepReturnValue(forms: any, res: any[] = []) {
 
-//   for (const key in forms) {
-//     if (typeof forms[key] === 'object') {
-//       if (forms[key]?.type) {
-//         res.push({
-//           ...forms[key],
-//           field: key
-//         })
-//       } else {
-//         formatFormDeepReturnValue(forms[key], res)
-//       }
-//     }
-//   }
+  for (const key in forms) {
+    if (typeof forms[key] === 'object') {
+      if (forms[key]?.type) {
+        res.push({
+          ...forms[key],
+          field: key
+        })
+      } else {
+        formatFormDeepReturnValue(forms[key], res)
+      }
+    }
+  }
 
-//   return res
-// }
+  return res
+}
 
-// // 包装函数
-// export function formatJsonToFormItem<T extends FormItem>(json: JsonType, data: ObjectInfo): FormatJsonValue<T>[] {
-//   const temp = jsonToFormDeep2(json, data)
-//   return formatFormDeepReturnValue(temp)
-// }
+// 包装函数
+export function formatJsonToFormItem<T extends FormItem>(json: JsonType, data: ObjectInfo): FormatJsonValue<T>[] {
+  const temp = jsonToFormDeep2(json, data)
+  return formatFormDeepReturnValue(temp)
+}
 
 // todo 进行优化 走了弯路
 function jsonToFormItemArray(key: string, json: JsonType, data: ObjectInfo, arr: FormFields[]) {

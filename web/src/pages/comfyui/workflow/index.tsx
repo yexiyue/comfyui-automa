@@ -3,7 +3,9 @@ import { CircularProgress } from "@nextui-org/react";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import PromptToForm from "./PromptToForm";
-import ResultView from "./ResultView";
+import ResultView from "./resultView";
+import { useStore } from "@/store/useStore";
+import { useEffect, useState } from "react";
 export type ComfyuiWorkflowDate = {
   cover: string;
   description: string;
@@ -15,6 +17,9 @@ export type ComfyuiWorkflowDate = {
 export default function ComfyuiWorkflow() {
   const params = useParams();
   const id = params.id;
+  const [ setPrompts] = useStore((store) => [
+    store.setPrompts,
+  ]);
   const { data, isSuccess, isLoading } = useQuery<
     {
       data: ComfyuiWorkflowDate;
@@ -27,7 +32,12 @@ export default function ComfyuiWorkflow() {
       return data.data;
     },
   });
-  console.log(data);
+
+  useEffect(() => {
+    if (!data || !id) return;
+    setPrompts(id, data.prompt);
+  }, [data]);
+
   return (
     <>
       {isLoading && (
@@ -37,9 +47,9 @@ export default function ComfyuiWorkflow() {
         ></CircularProgress>
       )}
       {isSuccess && data && (
-        <div className="w-full h-full flex relative" >
-          <PromptToForm prompt={data.prompt}></PromptToForm>
-          <ResultView></ResultView>
+        <div className="w-full h-full flex relative">
+          <PromptToForm id={id!}></PromptToForm>
+          <ResultView name={data.name} id={id!}></ResultView>
         </div>
       )}
     </>

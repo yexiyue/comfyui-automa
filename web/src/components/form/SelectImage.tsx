@@ -1,4 +1,4 @@
-import { Select, SelectProps, Upload } from "antd";
+import { Select, SelectProps, Space, Upload } from "antd";
 import { useControllableValue } from "ahooks";
 import { Image } from "@nextui-org/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -43,7 +43,7 @@ export default function SelectImage(
     },
   });
   return (
-    <>
+    <Space className="w-full" direction="vertical">
       <Select {...props} value={value} onChange={setValue} />
       {upload && (
         <Upload
@@ -69,6 +69,6 @@ export default function SelectImage(
           ></Image>
         </Upload>
       )}
-    </>
+    </Space>
   );
 }

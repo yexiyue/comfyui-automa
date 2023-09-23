@@ -12,7 +12,7 @@ export const queryFn: QueryFunction = async ({ queryKey }) => {
     }
 }
 
-export const mutationFn = (url: string, method: 'post' | 'put' | 'delete'): MutationFunction => async (body) => {
+export const mutationFn = <T, D = any>(url: string, method: 'post' | 'put' | 'delete'): MutationFunction<T, D> => async (body) => {
     try {
         const res = await fetch(`${import.meta.env.VITE_SERVER_URL}${url}`, {
             method,

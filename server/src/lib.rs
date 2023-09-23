@@ -44,6 +44,7 @@ pub async fn start() {
         .merge(images::image_router())
         .merge(apis::api_routers())
         .merge(proxy::proxy_router())
+        .merge(proxy::ws_router())
         .layer(Extension(DBS.clone()))
         .layer(CorsLayer::permissive())
         .layer(CatchPanicLayer::new())

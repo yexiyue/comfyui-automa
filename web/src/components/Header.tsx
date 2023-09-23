@@ -4,12 +4,14 @@ import {
   NavbarContent,
   NavbarItem,
   Button,
+  NavbarMenu,
 } from "@nextui-org/react";
 import { Link, useNavigate } from "react-router-dom";
 import { SunIcon, MoonIcon, Cog8ToothIcon } from "@heroicons/react/20/solid";
 import { useLocation } from "react-router-dom";
 import { useStore } from "@/store/useStore";
 import { useEffect, useState } from "react";
+import { useWatchQueue } from "@/hooks/useWatchQueue";
 export default function Header() {
   const [theme, setTheme] = useStore((store) => [store.theme, store.setTheme]);
   const { pathname } = useLocation();
@@ -18,6 +20,11 @@ export default function Header() {
   useEffect(() => {
     document.documentElement.className = theme;
   }, [theme]);
+
+  //进行任务队列的监听处理
+  useWatchQueue();
+  
+
   return (
     <Navbar className=" border-b-1 h-14" shouldHideOnScroll>
       <NavbarBrand>
