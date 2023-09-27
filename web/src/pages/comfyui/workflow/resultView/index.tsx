@@ -17,6 +17,7 @@ import { Link } from "react-router-dom";
 import { HistoryView } from "./HistoryView";
 import TaskQueue from "./TaskQueue";
 import { QueueList, useQueueStore } from "@/store/useQueueStore";
+import { getRandom } from "@/utils/getRandom";
 type ResultViewProps = {
   id: string;
   name: string;
@@ -27,6 +28,7 @@ export default function ResultView({ id, name }: ResultViewProps) {
     prompts,
     histories,
     idHistory,
+    idConfig,
     initWsbSocket,
     setHistories,
   ] = useStore((store) => [
@@ -34,6 +36,7 @@ export default function ResultView({ id, name }: ResultViewProps) {
     store.prompts,
     store.histories,
     store.idHistory,
+    store.idConfig,
     store.initWsbSocket,
     store.setHistories,
   ]);
@@ -91,16 +94,23 @@ export default function ResultView({ id, name }: ResultViewProps) {
 
   const { mutate: interrupt } = useMutation({
     mutationFn: async () => {
-      fetch(`/comfyui/interrupt`, {
-        method: "post",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          // delete: [queue_running?.[0]?.promptId],
-          // clear: true,
-        }),
-      });
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SERVER_URL}/comfyui/interrupt`,
+          {
+            method: "post",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({}),
+          }
+        );
+        if (res.ok) {
+          return await res.blob();
+        }
+      } catch (error) {
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -145,9 +155,18 @@ export default function ResultView({ id, name }: ResultViewProps) {
               variant="shadow"
               size="sm"
               onClick={() => {
+                const prompt = prompts[id];
+                const random=idConfig[id].random
+                if (random) {
+                  for (const key in random) {
+                    if (random[key]) {
+                      prompt[key].inputs.seed = getRandom();
+                    }
+                  }
+                }
                 postPrompt(
                   {
-                    prompt: prompts[id],
+                    prompt: prompt,
                   },
                   {
                     onSuccess(data) {
@@ -165,16 +184,18 @@ export default function ResultView({ id, name }: ResultViewProps) {
             <Button color="primary" variant="shadow" size="sm" onClick={onOpen}>
               历史记录
             </Button>
-            <Button
-              color="danger"
-              variant="shadow"
-              size="sm"
-              onClick={() => {
-                interrupt(undefined);
-              }}
-            >
-              取消当次任务
-            </Button>
+            {showProgress && (
+              <Button
+                color="danger"
+                variant="shadow"
+                size="sm"
+                onClick={() => {
+                  interrupt();
+                }}
+              >
+                取消当次任务
+              </Button>
+            )}
           </Space>
           <div>
             {showProgress && (
@@ -185,22 +206,24 @@ export default function ResultView({ id, name }: ResultViewProps) {
               ></Progress>
             )}
 
-            {outputImages &&
-              outputImages?.length > 0 &&
-              outputImages!.map((image, index) => (
-                <div key={index}>
-                  <p>{image.class_type}</p>
-                  <div>
-                    {image.images.map((item) => (
-                      <Image
-                        key={item.url}
-                        src={item.url}
-                        className="w-full h-full"
-                      ></Image>
-                    ))}
+            <div className="flex flex-wrap justify-center mt-4 gap-[30px]">
+              {outputImages &&
+                outputImages?.length > 0 &&
+                outputImages!.map((image, index) => (
+                  <div key={index}>
+                    <p className="text-xs">{image.class_type}</p>
+                    <div className="bg-gray-100 rounded-[20px] py-4 hover:shadow-2xl transition cursor-pointer">
+                      {image.images.map((item) => (
+                        <Image
+                          key={item.url}
+                          src={item.url}
+                          className="w-[400px] h-[400px] object-contain"
+                        ></Image>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+            </div>
           </div>
         </CardBody>
       </Card>

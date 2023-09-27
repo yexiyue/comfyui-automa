@@ -3,6 +3,7 @@ import { JsonType } from "@/utils/jsonToForm";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import localforage from 'localforage'
+
 export type DatesList = {
     id: string;
     create_time: string;
@@ -55,7 +56,13 @@ export type Store = {
     idHistory: {
         [id: string]: string[]
     };
-
+    idConfig: {
+        [id: string]: {
+            random: {
+                [k: string]: boolean
+            }
+        }
+    };
     initWsbSocket: () => void;
     setWsMessageStatus: (message: Store['wsMessage']) => void;
     setWsMessageProgress: (message: Store['wsMessage']['progress']) => void;
@@ -71,6 +78,7 @@ export type Store = {
     setIdHistory: (id: string, prompt_id: string) => void;
     removeIdHistory: (id: string, prompt_id: string) => void;
     clearIdHistory: (id: string) => void;
+    setIdConfig: (id: string, config: Partial<Store['idConfig'][string]>) => void
 }
 
 export const useStore = create(persist<Store>((set, get) => ({
@@ -83,9 +91,6 @@ export const useStore = create(persist<Store>((set, get) => ({
     prompts: {},
     setPrompts(id, json) {
         set(state => {
-            if (id in state.prompts) {
-                return { ...state }
-            }
             state.prompts[id] = json;
             return { prompts: { ...state.prompts } }
         })
@@ -107,11 +112,11 @@ export const useStore = create(persist<Store>((set, get) => ({
         if (get().ws) return;
         console.log("initWsbSocket");
         set(state => {
-            const ws = new WebSocket("ws://localhost:4060/ws");
+            const ws = new WebSocket("ws://localhost:8188/ws");
             state.ws = ws
-            
+
             ws.onmessage = (event) => {
-                console.log(event.data)
+                // console.log(event.data)
                 if (typeof event.data === 'string') {
                     const data = JSON.parse(event.data)
                     if (data.type === 'status') {
@@ -186,10 +191,22 @@ export const useStore = create(persist<Store>((set, get) => ({
         })
     },
 
+    idConfig: {},
+    setIdConfig: (id: string, config: Partial<Store['idConfig'][string]>) => {
+        set(state => {
+            return { idConfig: { ...state.idConfig, [id]: { ...state.idConfig[id], ...config } } }
+        })
+    }
+
 }), {
     name: "comfyui_automa_store",
     partialize(state) {
-        return { ...state, ws: undefined, queue: undefined } as any
+        return {
+            theme: state.theme,
+            prompts: state.prompts,
+            histories: state.histories,
+            idHistory: state.idHistory,
+            idConfig: state.idConfig
+        } as any
     },
-    storage: createJSONStorage(() => localforage as any)
 }))

@@ -34,6 +34,7 @@ export const TemplateCreate = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
+  const [workflowId, setWorkflowId] = useState("");
   const handlePreview = async (file: UploadFile) => {
     const url = URL.createObjectURL(file.originFileObj as any);
 
@@ -55,7 +56,7 @@ export const TemplateCreate = () => {
         import.meta.env.VITE_SERVER_URL
       }/template_cover_default.png`;
     }
-
+    values.workflowId = workflowId;
     mutate(values, {
       onSuccess: () => {
         messageApi.success("添加成功", 1).then(() => {
@@ -69,14 +70,14 @@ export const TemplateCreate = () => {
   };
 
   return (
-    <div className="mx-auto mt-5 w-2/5">
+    <div className="mx-auto mt-5 w-2/5 pb-10">
       {contextHolder}
       <Form.Provider
         onFormFinish={(name, { values, forms }) => {
           if (name === "fieldForm") {
+            setWorkflowId(values.workflowId);
             const { template, fieldForm } = forms;
-            const fields = template.getFieldValue("fields") || [];
-            template.setFieldsValue({ fields: [...fields, values] });
+            template.setFieldsValue({ fields: [...values.fields] });
             fieldForm.resetFields();
             setFieldOpen(false);
           }
@@ -130,29 +131,33 @@ export const TemplateCreate = () => {
           >
             {({ getFieldValue, setFieldsValue }) => {
               const fields: {
-                fieldName: string;
-                fieldType: string;
-                defaultValue: string;
+                field: string;
+                type: string;
+                default: string;
               }[] = getFieldValue("fields") || [];
               return fields.length > 0 ? (
                 <div className="flex flex-col gap-3">
                   {fields.map((field, index) => (
-                    <div key={index} className="gap-3 flex flex-row">
-                      <Tag color="success">{field.fieldName}</Tag>
-                      <Tag color="cyan">{field.fieldType}</Tag>
-                      {field.defaultValue && (
-                        <Tag color="orange">{field.defaultValue}</Tag>
+                    <div
+                      key={field.field + index}
+                      className="gap-3 flex flex-row"
+                    >
+                      <Tag color="success">{field.field}</Tag>
+                      <Tag color="cyan">{field.type}</Tag>
+                      {field.default && (
+                        <Tag color="orange">{field.default}</Tag>
                       )}
-                      <Button
-                        size="sm"
+                      <AntdButton
+                        size="small"
+                        type="default"
+                        danger
                         onClick={() => {
-                          let newValue = fields.filter((_, i) => i !== index);
+                          const newValue = fields.filter((_, i) => i !== index);
                           setFieldsValue({ fields: newValue });
                         }}
-                        color="danger"
                       >
                         删除
-                      </Button>
+                      </AntdButton>
                     </div>
                   ))}
                 </div>
@@ -172,11 +177,26 @@ export const TemplateCreate = () => {
               block
               icon={<PlusOutlined />}
             >
-              添加模版字段
+              从工作流中选择模版字段
             </AntdButton>
           </div>
-          <div className="mt-6">
-            <Button color="primary" className="w-full" variant="shadow" onClick={onSubmit}>
+          <div className="mt-6 flex justify-between">
+            <Button
+              color="primary"
+              variant="shadow"
+              className="w-1/3"
+              onClick={() => {
+                history.back();
+              }}
+            >
+              返回
+            </Button>
+            <Button
+              color="primary"
+              variant="shadow"
+              className="w-1/3"
+              onClick={onSubmit}
+            >
               添加模版
             </Button>
           </div>

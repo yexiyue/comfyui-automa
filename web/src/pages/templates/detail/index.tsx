@@ -43,6 +43,7 @@ export const TemplateDetail = () => {
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
   const [image, setImage] = useState("");
+  const [workflowId, setWorkflowId] = useState("");
   const handlePreview = async (file: UploadFile) => {
     if (file.url) {
       setPreviewImage(file.url);
@@ -80,6 +81,8 @@ export const TemplateDetail = () => {
   const onSubmit = async () => {
     const values = await form.validateFields();
     values.cover = values.cover?.[0]?.response?.url?.[0] || image || "";
+    values.workflowId = workflowId ? workflowId : data?.data.workflowId;
+    console.log(values);
     updateTemplate.mutate(values, {
       onSuccess: () => {
         messageApi
@@ -107,13 +110,13 @@ export const TemplateDetail = () => {
         ></CircularProgress>
       )}
       {isSuccess && (
-        <div className="mx-auto mt-5 w-2/5">
+        <div className="mx-auto mt-5 w-2/5 pb-10">
           <Form.Provider
             onFormFinish={(name, { values, forms }) => {
               if (name === "fieldForm") {
+                setWorkflowId(values.workflowId);
                 const { template, fieldForm } = forms;
-                const fields = template.getFieldValue("fields") || [];
-                template.setFieldsValue({ fields: [...fields, values] });
+                template.setFieldsValue({ fields: [...values.fields] });
                 fieldForm.resetFields();
                 setFieldOpen(false);
               }
@@ -170,21 +173,21 @@ export const TemplateDetail = () => {
               >
                 {({ getFieldValue, setFieldsValue }) => {
                   const fields: {
-                    fieldName: string;
-                    fieldType: string;
-                    defaultValue: string;
+                    field: string;
+                    type: string;
+                    default: string;
                   }[] = getFieldValue("fields") || [];
                   return fields.length > 0 ? (
                     <div className="flex flex-col gap-3">
                       {fields.map((field, index) => (
                         <div
-                          key={field.fieldName + index}
+                          key={field.field + index}
                           className="gap-3 flex flex-row"
                         >
-                          <Tag color="success">{field.fieldName}</Tag>
-                          <Tag color="cyan">{field.fieldType}</Tag>
-                          {field.defaultValue && (
-                            <Tag color="orange">{field.defaultValue}</Tag>
+                          <Tag color="success">{field.field}</Tag>
+                          <Tag color="cyan">{field.type}</Tag>
+                          {field.default && (
+                            <Tag color="orange">{field.default}</Tag>
                           )}
                           <Button
                             size="small"
@@ -218,7 +221,7 @@ export const TemplateDetail = () => {
                   block
                   icon={<PlusOutlined />}
                 >
-                  添加模版字段
+                  从工作流中选择模版字段
                 </Button>
               </div>
               <div className="mt-6 flex justify-around">

@@ -132,7 +132,7 @@ pub async fn ws_handler(mut ws: ws::WebSocket) {
                 tungstenite::Message::Binary(bin) => {
                     ws.send(ws::Message::Binary(bin)).await.unwrap();
                 }
-                _ => {}
+                _ => continue,
             };
         }
     }

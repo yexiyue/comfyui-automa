@@ -44,8 +44,9 @@ export interface FormatJsonValue<T extends FormItem> {
   step?: T extends 'number' ? number : never;
   max: T extends 'number' ? number : never;
   option: T extends 'select' ? string[] : never;
-  multiline: T extends 'textarea' ? boolean | undefined : never,
-  image_upload?: T extends 'select' ? boolean : never,
+  multiline: T extends 'textarea' ? boolean | undefined : never;
+  image_upload?: T extends 'select' ? boolean : never;
+  class_type: string;
 }
 
 // 深度遍历获取节点相关的信息
@@ -107,33 +108,9 @@ export function jsonToFormDeep2(json: JsonType, data: ObjectInfo) {
   return forms;
 }
 
-// 对深度遍历的结果转换成数组
-function formatFormDeepReturnValue(forms: any, res: any[] = []) {
-
-  for (const key in forms) {
-    if (typeof forms[key] === 'object') {
-      if (forms[key]?.type) {
-        res.push({
-          ...forms[key],
-          field: key
-        })
-      } else {
-        formatFormDeepReturnValue(forms[key], res)
-      }
-    }
-  }
-
-  return res
-}
-
-// 包装函数
-export function formatJsonToFormItem<T extends FormItem>(json: JsonType, data: ObjectInfo): FormatJsonValue<T>[] {
-  const temp = jsonToFormDeep2(json, data)
-  return formatFormDeepReturnValue(temp)
-}
 
 // todo 进行优化 走了弯路
-function jsonToFormItemArray(key: string, json: JsonType, data: ObjectInfo, arr: FormFields[]) {
+function jsonToFormItemArray(key: string, json: JsonType, data: ObjectInfo, arr: FormFields[], parentKey?: string, parentField?: string,) {
   if (data == null || json[key].treated) return
 
   const inputs = json[key].inputs;
@@ -145,10 +122,15 @@ function jsonToFormItemArray(key: string, json: JsonType, data: ObjectInfo, arr:
     id: key,
     fields: []
   }
-
+  if (parentField) {
+    forms.parentField = parentField
+  }
+  if (parentKey) {
+    forms.parent_id = parentKey
+  }
   for (const field in inputs) {
     if (Array.isArray(inputs[field])) {
-      jsonToFormItemArray(inputs[field][0], json, data, arr)
+      jsonToFormItemArray(inputs[field][0], json, data, arr, key, field)
     } else {
       if (input[field]) {
         if (typeof input[field][0] === 'string') {
@@ -173,6 +155,7 @@ function jsonToFormItemArray(key: string, json: JsonType, data: ObjectInfo, arr:
             field,
             option: input[field][0],
             default: inputs[field],
+            class_type: json[key].class_type,
           }
           if (field === 'image') {
             form.image_upload = true
@@ -188,6 +171,8 @@ function jsonToFormItemArray(key: string, json: JsonType, data: ObjectInfo, arr:
 export type FormFields = {
   id: string,
   class_type: string,
+  parent_id?: string,
+  parentField?: string,
   fields: FormatJsonValue<FormItem>[]
 }
 
@@ -199,3 +184,5 @@ export function jsonToFormItemArray2(json: JsonType, data: ObjectInfo) {
   }
   return forms;
 }
+
+

@@ -1,14 +1,7 @@
 import { useStore } from "@/store/useStore";
 import { getHistoriesOutputs } from "@/utils/getHistoryImage";
 import { PhotoIcon } from "@heroicons/react/24/outline";
-import {
-  CardHeader,
-  CardFooter,
-  Card,
-  Button,
-  Image,
-  divider,
-} from "@nextui-org/react";
+import { CardFooter, Card, Button, Image } from "@nextui-org/react";
 import { Drawer, Popconfirm } from "antd";
 
 type HistoryViewProps = {
@@ -23,9 +16,10 @@ export function HistoryView({
   onClose,
   id,
 }: HistoryViewProps) {
-  const [removeIdHistory, clearIdHistory] = useStore((store) => [
+  const [removeIdHistory, clearIdHistory, setPrompts] = useStore((store) => [
     store.removeIdHistory,
     store.clearIdHistory,
+    store.setPrompts,
   ]);
   return (
     <Drawer
@@ -103,9 +97,11 @@ export function HistoryView({
                     color="primary"
                     variant="shadow"
                     size="sm"
-                    onClick={() => {}}
+                    onClick={() => {
+                      setPrompts(id, item1.prompt);
+                    }}
                   >
-                    保存提示词
+                    使用该提示词
                   </Button>
                   <Button
                     color="danger"

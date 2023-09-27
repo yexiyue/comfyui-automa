@@ -27,8 +27,11 @@ export const useWatchQueue = () => {
             fetch(`${import.meta.env.VITE_SERVER_URL}/comfyui/queue`)
                 .then((res) => res.json())
                 .then((res) => {
+                    console.log(res)
                     if (res.queue_running.length > 0) {
+                        console.log('上面分支')
                         if (data?.queue_running.length) {
+                            console.log(res.queue_running[0][1], data.queue_running[0][1])
                             if (res.queue_running[0][1] !== data.queue_running[0][1]) {
                                 queryClient.invalidateQueries({
                                     queryKey: ["/comfyui/queue"],
@@ -37,6 +40,7 @@ export const useWatchQueue = () => {
                             }
                         }
                     } else {
+                        console.log('下面分支')
                         if (data?.queue_running.length) {
                             queryClient.invalidateQueries({
                                 queryKey: ["/comfyui/queue"],

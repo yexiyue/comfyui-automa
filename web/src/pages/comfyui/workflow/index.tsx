@@ -17,7 +17,8 @@ export type ComfyuiWorkflowDate = {
 export default function ComfyuiWorkflow() {
   const params = useParams();
   const id = params.id;
-  const [ setPrompts] = useStore((store) => [
+  const [prompts,setPrompts] = useStore((store) => [
+    store.prompts,
     store.setPrompts,
   ]);
   const { data, isSuccess, isLoading } = useQuery<
@@ -35,7 +36,9 @@ export default function ComfyuiWorkflow() {
 
   useEffect(() => {
     if (!data || !id) return;
-    setPrompts(id, data.prompt);
+    if (!prompts[id]) {
+      setPrompts(id, data.prompt);
+    }
   }, [data]);
 
   return (

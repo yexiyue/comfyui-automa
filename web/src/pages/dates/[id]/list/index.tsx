@@ -12,12 +12,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Breadcrumb, Form, Popconfirm, Switch, Table, message } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { Link, useParams } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import AddModal from "./AddModal";
 import UpdateDower from "./UpdateDrawer";
 import ImportDrawer from "./ImportDrawer";
 import { exportExcel } from "@/utils/importExcel";
-
+import { FormItem, FormatJsonValue } from "@/utils/jsonToForm";
+import { useSize } from "ahooks";
 export default function DateList() {
   const params = useParams();
   const { data: defaultData, isLoading: fieldsLoading } = useQuery<
@@ -32,6 +33,7 @@ export default function DateList() {
       return data.data;
     },
   });
+
   const fields = useMemo(() => {
     if (defaultData) {
       return defaultData.fields;
@@ -42,7 +44,6 @@ export default function DateList() {
     queryKey: [`/dates/${params.id}`],
   });
   const queryClient = useQueryClient();
-
   const { mutate: deleteMutate } = useMutation({
     mutationFn: (id: string) =>
       mutationFn(`/dates/${params.id}/${id}`, "delete")(null),
@@ -67,17 +68,21 @@ export default function DateList() {
   const [messageApi, messageHolder] = message.useMessage();
   const [updateId, setUpdateId] = useState<string>();
   const [importOpen, setImportOpen] = useState(false);
+
   const columns = useMemo(() => {
     let columns: ColumnsType<any> = [
       {
         key: `index${params.id}`,
         title: "序号",
         render: (text, record, index) => index + 1,
+        width: 50,
+        fixed: "left",
       },
       {
         key: `action${params.id}`,
         title: "操作",
         width: 200,
+        fixed: "right",
         render: (text, record, index) => (
           <div className="flex items-center justify-around">
             <Switch
@@ -133,16 +138,18 @@ export default function DateList() {
     columns.splice(
       1,
       0,
-      ...fields!.map((item: any) => ({
-        key: item.fieldName,
-        dataIndex: item.fieldName,
-        sorter:
-          item.fieldType === "number" ? (a: any, b: any) => a - b : undefined,
-        title: item.fieldName,
+      ...fields!.map((item: FormatJsonValue<FormItem>) => ({
+        key: `${item.id}-${item.field}`,
+        dataIndex: `${item.id}-${item.field}`,
+        sorter: item.type === "number" ? (a: any, b: any) => a - b : undefined,
+        title: `#${item.id}${item.class_type}.${item.field}`,
+        width: 300,
       }))
     );
     return columns;
   }, [params, fields]);
+
+  const size = useSize(document.body);
 
   return (
     <div>
@@ -165,7 +172,7 @@ export default function DateList() {
           />
         </CardHeader>
         <CardBody>
-          <div className="flex gap-4 mb-4">
+          <div className="flex w-full gap-4 mb-4">
             <Button
               size="sm"
               color="primary"
@@ -193,12 +200,20 @@ export default function DateList() {
           </div>
           <Table
             columns={columns}
+            style={{
+              width: size?.width! * 0.75,
+              height: "70%",
+            }}
             rowKey={(item) => item.id}
             dataSource={data}
             loading={isLoading}
             size="small"
             pagination={{
               defaultPageSize: 20,
+            }}
+            scroll={{
+              y: 400,
+              x: 300,
             }}
           />
         </CardBody>

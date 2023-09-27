@@ -4,6 +4,9 @@ import { Input } from "antd";
 import { DatesList } from "@/store/useStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { mutationFn } from "@/api/queryFn";
+import SelectImage from "@/components/form/SelectImage";
+import SliderInput from "@/components/form/SliderInput";
+import { FormatJsonValue, FormItem } from "@/utils/jsonToForm";
 const { TextArea } = Input;
 
 type UpdateDrawerProps = {
@@ -87,16 +90,36 @@ export default ({
         }
       >
         <Form form={form} layout="vertical">
-          {fields?.map((item:any) => (
+          {fields?.map((item: FormatJsonValue<FormItem>) => (
             <Form.Item
-              label={item.fieldName}
-              name={item.fieldName}
-              rules={[{ required: true, message: `请输入${item.fieldName}` }]}
+              label={`#${item.id} ${item.class_type} ${item.field}`}
+              name={`${item.id}-${item.field}`}
+              initialValue={item.default}
+              rules={[{ required: true, message: `请输入${item.field}` }]}
             >
-              {item.fieldType === "number" ? (
-                <Input type={item.fieldType} />
-              ) : (
-                <TextArea rows={3} />
+              {item.type === "number" && (
+                <SliderInput
+                  step={item.step}
+                  min={item.min}
+                  max={item.max}
+                ></SliderInput>
+              )}
+              {item.type === "textarea" &&
+                (item.multiline ? (
+                  <TextArea rows={3}></TextArea>
+                ) : (
+                  <Input></Input>
+                ))}
+              {item.type === "select" && (
+                <SelectImage
+                  className="w-full"
+                  options={item.option.map((o) => ({
+                    label: o,
+                    value: o,
+                  }))}
+                  showSearch
+                  upload={item.image_upload}
+                ></SelectImage>
               )}
             </Form.Item>
           ))}

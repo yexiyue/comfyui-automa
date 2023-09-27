@@ -106,43 +106,21 @@ export default ({ open, setOpen, fields, id }: ImportDrawerProps) => {
               onClick={async () => {
                 const values = await form.validateFields();
                 const data = await importExcel(values.file[0].originFileObj);
-                const templateFields = Object.keys(data[0]).map((item) => ({
-                  fieldName: item,
-                  fieldType:
-                    Number.isInteger(data[0][item]) ||
-                    Number.isFinite(data[0][item])
-                      ? "number"
-                      : "text",
-                }));
                 if (!fields) {
                   return forceImport(data, {
                     onSuccess: () => {
-                      updateDefault(
-                        {
-                          fields: templateFields,
-                        },
-                        {
-                          onSuccess: () => {
-                            form.resetFields();
-                            setImportData(undefined);
-                            setOpen(false);
-                          },
-                        }
-                      );
+                      messageApi.success("导入成功");
                     },
                   });
                 }
-                const oldFields = fields.map((item: any) => item.fieldName);
+                const oldFields = fields.map((item: any) => `${item.id}-${item.field}`);
                 let keys = Object.keys(data[0]);
-                let diff1 = oldFields.every((item: any) => keys.includes(item));
+                let diff1 = oldFields.every((item: any) =>
+                  keys.includes(item)
+                );
                 let diff2 = keys.every((item) => oldFields.includes(item));
                 if (!diff1 || !diff2) {
                   setOpen(false);
-                  setImportData({
-                    data,
-                    templateFields,
-                  });
-
                   return onOpen();
                 }
                 mutate(data, {
@@ -201,7 +179,7 @@ export default ({ open, setOpen, fields, id }: ImportDrawerProps) => {
             <>
               <ModalHeader className="flex flex-col gap-1">警告</ModalHeader>
               <ModalBody>
-                <p>数据不兼容，确定继续导入吗？这将会清空原来的数据</p>
+                <p>数据不兼容，请重新选择文件</p>
               </ModalBody>
               <ModalFooter>
                 <Button
@@ -213,29 +191,6 @@ export default ({ open, setOpen, fields, id }: ImportDrawerProps) => {
                   }}
                 >
                   取消
-                </Button>
-                <Button
-                  color="primary"
-                  onPress={() => {
-                    forceImport(importData?.data!, {
-                      onSuccess: () => {
-                        updateDefault(
-                          {
-                            fields: importData?.templateFields,
-                          },
-                          {
-                            onSuccess: () => {
-                              onClose();
-                              form.resetFields();
-                              setImportData(undefined);
-                            },
-                          }
-                        );
-                      },
-                    });
-                  }}
-                >
-                  确认
                 </Button>
               </ModalFooter>
             </>

@@ -3,11 +3,13 @@ import { PlusIcon } from "@heroicons/react/24/outline";
 import { TemplateCard } from "@/components/TemplateCard";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { FormItem, FormatJsonValue } from "@/utils/jsonToForm";
 
 export type Template = {
+  workflowId: string;
   cover: string;
   description: string;
-  fields: { fieldName: string; fieldType: string; defaultValue?: string }[];
+  fields: FormatJsonValue<FormItem>[];
   id: string;
   name: string;
   create_time: string;

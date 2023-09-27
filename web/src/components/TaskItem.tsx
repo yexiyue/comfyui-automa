@@ -15,29 +15,51 @@ export function TaskItem(
     store.deleteTask,
   ]);
   const { mutate: interrupt } = useMutation({
-    mutationFn: async (body: any) => {
-      fetch(`${import.meta.env.VITE_SERVER_URL}/comfyui/interrupt`, {
-        method: "post",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
+    mutationFn: async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SERVER_URL}/comfyui/interrupt`,
+          {
+            method: "post",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({}),
+          }
+        );
+        if (res.ok) {
+          return await res.blob();
+        }
+      } catch (error) {
+        throw error;
+      }
     },
     onSuccess: () => {
-      interruptTask();
+      queryClient.invalidateQueries({
+        queryKey: ["/comfyui/queue"],
+      });
     },
   });
 
   const { mutate: cancel } = useMutation({
-    mutationFn: async (body: any) => {
-      fetch(`${import.meta.env.VITE_SERVER_URL}/comfyui/queue`, {
-        method: "post",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
+    mutationFn: async (data: any) => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SERVER_URL}/comfyui/queue`,
+          {
+            method: "post",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(data),
+          }
+        );
+        if (res.ok) {
+          return await res.blob();
+        }
+      } catch (error) {
+        throw error;
+      }
     },
     onSuccess: () => {
       deleteTask([props.promptId]);
@@ -67,7 +89,7 @@ export function TaskItem(
             size="sm"
             color="danger"
             onClick={() => {
-              interrupt({});
+              interrupt();
             }}
             variant="light"
           >
@@ -83,7 +105,6 @@ export function TaskItem(
             color="danger"
             onClick={() =>
               cancel({
-                client_id: wsMessage.sid,
                 delete: [props.promptId],
               })
             }

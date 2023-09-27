@@ -1,13 +1,12 @@
-import { Input, Row, SliderSingleProps } from "antd";
+import { Input, SliderSingleProps } from "antd";
 import { Slider } from "antd";
 import { useControllableValue } from "ahooks";
-import { useEffect } from "react";
 export default function SliderInput(
   props: SliderSingleProps
 ) {
   const [value, setValue] = useControllableValue(props);
   return (
-    <div className="flex justify-around gap-2">
+    <div className="flex justify-around gap-2 w-full">
       {props.step && (
         <Slider
           {...props}
