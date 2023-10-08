@@ -10,12 +10,12 @@ import DateList from "@/pages/dates/[id]/list";
 import DateMeta from "@/pages/dates/[id]/meta";
 import DateSetting from "@/pages/dates/[id]/setting";
 import DateImage from "@/pages/dates/[id]/image";
-import { About } from "@/pages/about";
 import { Setting } from "@/pages/setting";
 import { ComfyUIPage } from "@/pages/comfyui";
 import { Comfyui } from "@/pages/comfyui/Comfyui";
 import { ComfyuiCreate } from "@/pages/comfyui/Create";
 import ComfyuiWorkflow from "@/pages/comfyui/workflow";
+import { ComfyuiUpdate } from "@/pages/comfyui/Update";
 
 export const router = createHashRouter([
   {
@@ -65,10 +65,6 @@ export const router = createHashRouter([
         Component: TemplateDetail,
       },
       {
-        path: "about",
-        Component: About,
-      },
-      {
         path: "setting",
         Component: Setting,
       },
@@ -87,6 +83,10 @@ export const router = createHashRouter([
       {
         path: "/comfyui/:id",
         Component: ComfyuiWorkflow,
+      },
+      {
+        path: "/comfyui/:id/update",
+        Component: ComfyuiUpdate,
       },
     ],
   },

@@ -18,6 +18,7 @@ export type QueueStore = {
         queue_running: Task[],
         queue_pending: Task[]
     };
+    backups: Task[],
     addQueue: (id: string, promptId: string, type?: 'head' | 'tail') => void;
     getQueue: (id: string) => QueueStore['queue'] & {
         length: number
@@ -37,6 +38,7 @@ export const useQueueStore = create(persist(immer<QueueStore>((set, get) => ({
         queue_pending: [],
         queue_running: []
     },
+    backups: [],
     flag: false,
     addQueue: (id: string, promptId: string) => {
         set(state => {
@@ -45,6 +47,7 @@ export const useQueueStore = create(persist(immer<QueueStore>((set, get) => ({
             } else {
                 state.queue.queue_pending.push({ workflowId: id, promptId: promptId })
             }
+            state.backups.push({ workflowId: id, promptId: promptId })
         })
     },
     getQueue: (id: string) => {
@@ -73,7 +76,7 @@ export const useQueueStore = create(persist(immer<QueueStore>((set, get) => ({
         if (!data) return;
         const queue = [...data.queue_running, ...data.queue_pending].map(item => item[1]);
         set(state => {
-            const myQueue = [...state.queue.queue_running, ...state.queue.queue_pending];
+            const myQueue = state.backups;
             if (myQueue.length === queue.length && myQueue.every((x, i) => x.promptId === queue[i])) {
                 return;
             } else {
@@ -91,11 +94,13 @@ export const useQueueStore = create(persist(immer<QueueStore>((set, get) => ({
     interrupt: () => {
         set(state => {
             if (state.queue.queue_running.length > 0) {
-                state.queue.queue_running.shift();
+                const prev = state.queue.queue_running.shift();
+                useStore().removeIdHistory(prev?.workflowId!, prev?.promptId!)
             }
             if (state.queue.queue_pending.length > 0) {
                 state.queue.queue_running.push(state.queue.queue_pending.shift()!);
             }
+
         })
     },
     deleteTask: (ids: string[]) => {

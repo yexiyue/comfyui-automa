@@ -82,7 +82,6 @@ export const TemplateDetail = () => {
     const values = await form.validateFields();
     values.cover = values.cover?.[0]?.response?.url?.[0] || image || "";
     values.workflowId = workflowId ? workflowId : data?.data.workflowId;
-    console.log(values);
     updateTemplate.mutate(values, {
       onSuccess: () => {
         messageApi

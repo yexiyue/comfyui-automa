@@ -37,14 +37,9 @@ export default ({ isOpen, onOpenChange, form, fields, id }: AddModalProps) => {
   return (
     <>
       {messageHolder}
-      <Modal
-        isOpen={isOpen}
-        placement="center"
-        scrollBehavior="inside"
-        onOpenChange={onOpenChange}
-      >
+      <Modal isOpen={isOpen} placement="center" scrollBehavior="inside">
         <ModalContent>
-          {(onClose) => (
+          {() => (
             <>
               <ModalHeader className="flex flex-col gap-1">
                 添加数据
@@ -55,10 +50,8 @@ export default ({ isOpen, onOpenChange, form, fields, id }: AddModalProps) => {
                     <Form.Item
                       label={`#${item.id} ${item.class_type} ${item.field}`}
                       name={`${item.id}-${item.field}`}
+                      key={`${item.id}-${item.field}`}
                       initialValue={item.default}
-                      rules={[
-                        { required: true, message: `请输入${item.field}` },
-                      ]}
                     >
                       {item.type === "number" && (
                         <SliderInput
@@ -94,7 +87,7 @@ export default ({ isOpen, onOpenChange, form, fields, id }: AddModalProps) => {
                   variant="light"
                   onPress={() => {
                     form.resetFields();
-                    onClose();
+                    onOpenChange(false);
                   }}
                 >
                   取消
@@ -107,7 +100,7 @@ export default ({ isOpen, onOpenChange, form, fields, id }: AddModalProps) => {
                         onSuccess() {
                           messageApi.success("添加成功", 1);
                           form.resetFields();
-                          onClose();
+                          onOpenChange(false);
                         },
                         onError(error) {
                           messageApi.error(error.message, 1);

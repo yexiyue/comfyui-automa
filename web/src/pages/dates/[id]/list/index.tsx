@@ -11,7 +11,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Breadcrumb, Form, Popconfirm, Switch, Table, message } from "antd";
 import { ColumnsType } from "antd/es/table";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useMemo, useRef, useState } from "react";
 import AddModal from "./AddModal";
 import UpdateDower from "./UpdateDrawer";
@@ -19,6 +19,9 @@ import ImportDrawer from "./ImportDrawer";
 import { exportExcel } from "@/utils/importExcel";
 import { FormItem, FormatJsonValue } from "@/utils/jsonToForm";
 import { useSize } from "ahooks";
+import { ComfyuiWorkflowDate } from "@/pages/comfyui/workflow";
+import { useQueueStore } from "@/store/useQueueStore";
+
 export default function DateList() {
   const params = useParams();
   const { data: defaultData, isLoading: fieldsLoading } = useQuery<
@@ -34,6 +37,19 @@ export default function DateList() {
     },
   });
 
+  const { data: workflow } = useQuery<
+    {
+      data: ComfyuiWorkflowDate;
+    },
+    Error,
+    ComfyuiWorkflowDate
+  >({
+    queryKey: [`/workflow/comfyui/${defaultData?.workflowId}`],
+    select(data) {
+      return data.data;
+    },
+    enabled: !!defaultData?.workflowId,
+  });
   const fields = useMemo(() => {
     if (defaultData) {
       return defaultData.fields;
@@ -150,7 +166,37 @@ export default function DateList() {
   }, [params, fields]);
 
   const size = useSize(document.body);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
+  const selectedPrompt = useMemo(() => {
+    const prompt = workflow?.prompt;
+    return (
+      data
+        ?.filter((item) => selectedRowKeys.includes(item.id))
+        .map((i) => {
+          const newPrompt = structuredClone(prompt);
+          Object.keys(i).forEach((key) => {
+            if (key.includes("-")) {
+              const id = key.split("-")[0];
+              const k = key.split("-")[1];
+              newPrompt![id].inputs[k] = i[key];
+            }
+          });
+          return newPrompt;
+        }) ?? []
+    );
+  }, [data, selectedRowKeys, workflow]);
+
+  const [addQueue, queue] = useQueueStore((store) => [
+    store.addQueue,
+    store.queue,
+  ]);
+  const { mutateAsync: postPrompt } = useMutation({
+    mutationFn: mutationFn<{
+      prompt_id: string;
+    }>("/comfyui/prompt", "post"),
+  });
+  const navigate = useNavigate();
   return (
     <div>
       {messageHolder}
@@ -197,12 +243,44 @@ export default function DateList() {
             >
               导出数据
             </Button>
+            <Button
+              size="sm"
+              color="primary"
+              disabled={selectedPrompt.length <= 0}
+              onClick={() => {
+                const res = selectedPrompt.reduce((pre, cur) => {
+                  return pre.then(() =>
+                    postPrompt({
+                      prompt: cur,
+                    }).then((res) => {
+                      addQueue(workflow?.id!, res.prompt_id);
+                    })
+                  );
+                }, Promise.resolve() as Promise<any>);
+
+                res.then(() => {
+                  messageApi.success("执行成功", 1);
+                  queryClient.invalidateQueries({
+                    queryKey: ["/comfyui/queue"],
+                  });
+                  navigate(`/comfyui/${workflow?.id}`);
+                });
+              }}
+            >
+              执行任务
+            </Button>
           </div>
           <Table
             columns={columns}
             style={{
               width: size?.width! * 0.75,
               height: "70%",
+            }}
+            rowSelection={{
+              selectedRowKeys,
+              onChange: (selectedRowKeys: React.Key[]) => {
+                setSelectedRowKeys(selectedRowKeys);
+              },
             }}
             rowKey={(item) => item.id}
             dataSource={data}

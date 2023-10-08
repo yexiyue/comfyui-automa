@@ -18,6 +18,7 @@ import { HistoryView } from "./HistoryView";
 import TaskQueue from "./TaskQueue";
 import { QueueList, useQueueStore } from "@/store/useQueueStore";
 import { getRandom } from "@/utils/getRandom";
+
 type ResultViewProps = {
   id: string;
   name: string;
@@ -57,9 +58,10 @@ export default function ResultView({ id, name }: ResultViewProps) {
     queryKey: ["/comfyui/queue"],
   });
 
-  const [addQueue, getQueue] = useQueueStore((store) => [
+  const [addQueue, getQueue, storeInterrupt] = useQueueStore((store) => [
     store.addQueue,
     store.getQueue,
+    store.interrupt,
   ]);
 
   const { length, queue_running } = getQueue(id);
@@ -76,7 +78,7 @@ export default function ResultView({ id, name }: ResultViewProps) {
 
   const historyOutputs = useMemo(() => {
     if (!idHistory || !histories) return;
-    return getHistoriesOutputs(histories, idHistory[id]);
+    return getHistoriesOutputs(histories, idHistory[id], "output");
   }, [histories, idHistory]);
 
   const {
@@ -113,6 +115,7 @@ export default function ResultView({ id, name }: ResultViewProps) {
       }
     },
     onSuccess: () => {
+      storeInterrupt();
       queryClient.invalidateQueries({
         queryKey: ["/comfyui/queue"],
       });
@@ -156,7 +159,7 @@ export default function ResultView({ id, name }: ResultViewProps) {
               size="sm"
               onClick={() => {
                 const prompt = prompts[id];
-                const random=idConfig[id].random
+                const random = idConfig[id].random;
                 if (random) {
                   for (const key in random) {
                     if (random[key]) {
@@ -183,6 +186,15 @@ export default function ResultView({ id, name }: ResultViewProps) {
             </Button>
             <Button color="primary" variant="shadow" size="sm" onClick={onOpen}>
               历史记录
+            </Button>
+            <Button
+              color="primary"
+              variant="shadow"
+              size="sm"
+              as={Link}
+              to={`/comfyui/${id}/update`}
+            >
+              工作流设置
             </Button>
             {showProgress && (
               <Button

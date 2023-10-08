@@ -94,8 +94,8 @@ export default ({
             <Form.Item
               label={`#${item.id} ${item.class_type} ${item.field}`}
               name={`${item.id}-${item.field}`}
+              key={`${item.id}-${item.field}`}
               initialValue={item.default}
-              rules={[{ required: true, message: `请输入${item.field}` }]}
             >
               {item.type === "number" && (
                 <SliderInput

@@ -86,10 +86,18 @@ export default function TaskQueue({
                     </div>
                   )}
                   {queue_running.map((item) => (
-                    <TaskItem {...item} status="running"></TaskItem>
+                    <TaskItem
+                      key={item.promptId}
+                      {...item}
+                      status="running"
+                    ></TaskItem>
                   ))}
                   {queue_pending.map((item) => (
-                    <TaskItem {...item} status="waiting"></TaskItem>
+                    <TaskItem
+                      key={item.promptId}
+                      {...item}
+                      status="waiting"
+                    ></TaskItem>
                   ))}
                 </div>
               </ModalBody>

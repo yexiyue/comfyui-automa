@@ -8,18 +8,34 @@ import {
   UploadFile,
   message,
 } from "antd";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { mutationFn } from "@/api/queryFn";
 import { Button } from "@nextui-org/react";
+import { ComfyuiWorkflowDate } from "./workflow";
 
 const { TextArea } = Input;
 
-export const ComfyuiCreate = () => {
+export const ComfyuiUpdate = () => {
+  const params = useParams();
+  const id = params.id;
+  const { data, isSuccess, isLoading } = useQuery<
+    {
+      data: ComfyuiWorkflowDate;
+    },
+    Error,
+    ComfyuiWorkflowDate
+  >({
+    queryKey: [`/workflow/comfyui/${id}`],
+    select(data) {
+      return data.data;
+    },
+  });
+
   const [messageApi, contextHolder] = message.useMessage();
   const { mutate } = useMutation({
-    mutationFn: mutationFn("/workflow/comfyui", "post"),
+    mutationFn: mutationFn(`/workflow/comfyui/${id}`, "put"),
   });
   const normFile = (e: any) => {
     if (Array.isArray(e)) {
@@ -31,34 +47,48 @@ export const ComfyuiCreate = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
+  const [image, setImage] = useState("");
   const handlePreview = async (file: UploadFile) => {
-    const url = URL.createObjectURL(file.originFileObj as any);
+    if (file.url) {
+      setPreviewImage(file.url);
+    } else {
+      const url = URL.createObjectURL(file.originFileObj as any);
+      setPreviewImage(url);
+    }
 
-    setPreviewImage(url);
     setPreviewOpen(true);
     setPreviewTitle(
       file.name || file.url!.substring(file.url!.lastIndexOf("/") + 1)
     );
   };
 
-  const [prompt, setPrompt] = useState<any>();
+  useEffect(() => {
+    if (!data) return;
+    let value = { ...data };
+    if (value.cover) {
+      setImage(value.cover);
+      const name: string[] = value.cover.split("/");
+      value.cover = [
+        {
+          uid: -1,
+          name: name[name.length - 1],
+          status: "done",
+          url: value.cover,
+        },
+      ] as any;
+    }
+    form.setFieldsValue(value);
+  }, [data]);
 
   const router = useNavigate();
   const onSubmit = async () => {
     const values = await form.validateFields();
-    values.prompt = prompt;
-    if (values.cover) {
-      values.cover = values.cover[0].response.url[0];
-    } else {
-      values.cover = `${
-        import.meta.env.VITE_SERVER_URL
-      }/comfyui_cover_default.png`;
-    }
+    values.cover = values.cover?.[0]?.response?.url?.[0] || image || "";
 
     mutate(values, {
       onSuccess: () => {
         messageApi.success("添加成功", 1).then(() => {
-          router("/comfyui");
+          router(`/comfyui/${id}`);
         });
       },
       onError(error) {
@@ -108,36 +138,24 @@ export const ComfyuiCreate = () => {
             </div>
           </Upload>
         </Form.Item>
-        <Form.Item label="工作流">
-          <Upload
-            beforeUpload={(file) => {
-              const fileReader = new FileReader();
-              fileReader.readAsText(file);
-              fileReader.onload = () => {
-                try {
-                  const json = JSON.parse(fileReader.result as string);
-                  setPrompt(json);
-                } catch (error: any) {
-                  messageApi.error(error.message, 1);
-                }
-              };
-              return false;
-            }}
-            accept=".json"
-            maxCount={1}
-          >
-            <AntdButton icon={<UploadOutlined />}>点击进行上传</AntdButton>
-          </Upload>
-        </Form.Item>
 
-        <div className="mt-6">
+        <div className="mt-6 flex justify-evenly">
+          <Button
+            className="w-[50px]"
+            variant="shadow"
+            onClick={() => {
+              history.back();
+            }}
+          >
+            取消
+          </Button>
           <Button
             color="primary"
-            className="w-full"
+            className="w-[50px]"
             variant="shadow"
             onClick={onSubmit}
           >
-            添加工作流
+            更新
           </Button>
         </div>
       </Form>

@@ -40,9 +40,6 @@ export default function Header() {
         <NavbarItem isActive={pathname === "/comfyui"}>
           <Link to="/comfyui">comfyui</Link>
         </NavbarItem>
-        <NavbarItem isActive={pathname === "/about"}>
-          <Link to="/about">关于</Link>
-        </NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end">
         <NavbarItem>
