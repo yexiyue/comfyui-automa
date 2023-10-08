@@ -38,6 +38,7 @@ export function TaskItem(
       queryClient.invalidateQueries({
         queryKey: ["/comfyui/queue"],
       });
+      interruptTask();
     },
   });
 
